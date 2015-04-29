@@ -2,12 +2,26 @@
 library(actuar)
 library(e1071) 
 
-
+##Plot of the pareto distribution
+xplot = seq(0.001,5,length = 1e5)
+plot(xplot,dpareto(xplot,scale = 1, shape = 1),
+     xlab = "",
+     ylab = "",
+     main = "Densite Pareto pour different paremetre de forme",
+     type = 'l')
+lines(xplot,dpareto(xplot,scale = 1, shape = 2),col = 'blue')
+lines(xplot,dpareto(xplot,scale = 1, shape = 3),col = 'red')
+lines(xplot,dpareto(xplot,scale = 1, shape = 5),col = 'darkgreen')
+legend("topright",
+       legend = c("beta = 1","beta = 2","beta = 3","beta = 5"),
+       col = c("black","red","blue","darkgreen"),
+       lty = 1)
 ##assign the scale (unchanged)
 scale = 1
 probsInter = c(2.5,97.5)
-names(probsInter) = paste0(as.character(probsInter),"%")
+names(probsInter) = paste0(as.character(probsInter),"\\%")
 probsInter = probsInter/100
+
 ##basic functions for bootstraping
 naif = function(data)
 {
@@ -44,9 +58,9 @@ getParamEMV = function(data,kHill)
   return(res)
 }
 
-getParamHill = function(data,k = 10)
+getParamHill = function(data,kHill = 10)
 {
-  k = round(k)
+  k = round(kHill,0)
   dataS = log(sort(data,decreasing = T)[1:k])
   res = list()
   res$hat_shape = 1/(mean(dataS[1:(k-1)]) - dataS[k])
@@ -61,7 +75,7 @@ basicParam = function(data,NsBootstrap,probs,funBoot,funparam=empiricQuantile)
   
   #on applique la fonction de quantile empirique :
   quantiles = apply(matBoot,2,function(col) funparam(col,probs)) 
-  row.names(quantiles) = probs
+  row.names(quantiles) = names(probs)
   #meme ligne : meme quantile
   
   resQuant = apply(quantiles,1,mean)
@@ -107,11 +121,11 @@ smoothBootstrap = function(data,NsBootstrap,probs,sdSmooth = 0.1)
   return(res)
 }
 
-paramBootstrap = function(data,NsBootstrap,probs,funParam = getParamHill)
+paramBootstrap = function(data,NsBootstrap,probs,funParam = getParamHill,...)
 {
   #bootstrap parametrique en utilisant Hill pour determiner le parametre
   #parametrique = 1c
-  shape_hat = funParam(data)$hat_shape
+  shape_hat = funParam(data,...)$hat_shape
   paramSpecifiq = function(x) 
   {
     param(x,shape_hat)
@@ -173,9 +187,14 @@ asymptotiqueEst = function(data,probs)
     i2 = round(n*p+sqrt(n)*nalpha*sqrt(p*(1-p)),0 )
     res = cbind(res,c(data[i1],data[i2]))
   }
-  colnames(res) = probs
-  rownames(res) = names(probsInters)
-  return(res)
+  result = list()
+  result$resQuant = apply(res,2,mean)
+  names(result$resQuant) = names(probs)
+  colnames(res) = names(probs)
+  rownames(res) = names(probsInter)
+  result$confidenceInter = res
+  
+  return(result)
 }
 
 getTheoricBounds = function(data,probs,shape)
@@ -191,29 +210,84 @@ getTheoricBounds = function(data,probs,shape)
     
     res = cbind(res,inter)
   }
-  rownames(res) = c("5%","95%")
-  colnames(res) = probs
-  return(res)
+  result = list()
+  result$resQuant = apply(res,2,mean)
+  names(result$resQuant) = names(probs)
+  colnames(res) = names(probs)
+  rownames(res) = names(probsInter)
+  result$confidenceInter = res
+  return(result)
 }
 
-
+#library(xtable)
+getResults = function(listOfRes)
+{
+  #fonction pour exporter directemment les resultats en tableau latex
+  #normalement ca se fait avec xtable, mais la ca ne marchait pas ...
+  result = matrix("",ncol = length(listOfRes)+1,nrow = length(listOfRes[[1]][[1]])+1)
+  result[1,] = c("",names(listOfRes))
+  result[,1] = c("",names(listOfRes[[1]][[1]]))
+  n = length(listOfRes[[1]][[1]])+1
+  j = 2
+  for(res in listOfRes)
+  {
+    tempVal = res[[1]]
+    tempIC = res[[2]]
+    result[2:n,j] = paste0("\\begin{tabular}{c}$",
+                     round(tempVal,2),"$\\\\",
+                     apply(tempIC,2,function(IC) paste("{\\small $[",
+                                                       round(IC[1],2),",",
+                                                       round(IC[2],2),"]$ }","\\end{tabular}" ) ) )
+    j = j+1
+  }
+  result1 = apply(result,1,function(x) paste(x,sep = "&",collapse = "&") )
+  return(cat(result1,sep = "\\\\\n"))
+}
 
 #les donnees
 shape = 2
 set.seed(1)
-x = rpareto(30,shape=shape,scale = scale)+1
+x = rpareto(100,shape=shape,scale = scale)+1
 max=1-(1/length(x))
 probs = c(.75,.90,max)
-names(probs) = c(".75",".90","max")
+names(probs) = c("75\\%","90\\%","max")
 qpareto(probs,shape = shape, scale = 1)+1
-naifBootstrap(x,10000,probs)
 
-smoothBoostrap(x,10000,probs,log(length(x))/length(x) )
-smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
-paramBootstrap(x,10000,probs)
+#partie 1
+resTh = getTheoricBounds(x,probs,scale)
+resAs = asymptotiqueEst(x,probs)
+resNaif = naifBootstrap(x,10000,probs)
+resSmooth = smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
+res = list(resTh,resAs,resSmooth,resSmooth)
+names(res) = c("IC Oracle","IC Asympt.","IC Naif","IC Lisse")
+getResults(res)
 
-bootstrapModifa(x,1000,probs)
-bootstrapModifb(x,1000,probs,log(length(x))/length(x))
+#smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
+
+#partie 2
+set.seed(1)
+x = rpareto(100,shape=shape,scale = scale)+1
+max=1-(1/length(x))
+probs = c(.75,.90,max)
+names(probs) = c("75\\%","90\\%","max")
+qpareto(probs,shape = shape, scale = 1)+1
+
+#1c
+resParamEMV = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamEMV,kHill = NULL)
+resParamHill = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamHill,kHill = length(x)/3)
+
+#2a
+resAEMV = bootstrapModifa(x,1000,probs,funParam=getParamEMV,kHill = NULL)
+resAHill = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamHill,kHill = length(x)/3)
+
+
+
+
+
+
+
+
+
 
 #les donnees
 x = rpareto(100,shape=shape,scale = scale)+1
