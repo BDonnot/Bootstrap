@@ -5,7 +5,9 @@ library(e1071)
 
 ##assign the scale (unchanged)
 scale = 1
-
+probsInter = c(2.5,97.5)
+names(probsInter) = paste0(as.character(probsInter),"%")
+probsInter = probsInter/100
 ##basic functions for bootstraping
 naif = function(data)
 {
@@ -32,9 +34,10 @@ invFun = function(hat_shape,probs)
   qpareto(probs,shape = hat_shape, scale = scale)+1
 }
 
-getParamEMV = function(data)
+getParamEMV = function(data,kHill)
 {
   #return the parametric estimation of the coefficients shape and scale
+  #kHill unused
   res = list()
   betaHat = 1/mean(log(data))
   res$hat_shape = betaHat
@@ -43,6 +46,7 @@ getParamEMV = function(data)
 
 getParamHill = function(data,k = 10)
 {
+  k = round(k)
   dataS = log(sort(data,decreasing = T)[1:k])
   res = list()
   res$hat_shape = 1/(mean(dataS[1:(k-1)]) - dataS[k])
@@ -57,11 +61,25 @@ basicParam = function(data,NsBootstrap,probs,funBoot,funparam=empiricQuantile)
   
   #on applique la fonction de quantile empirique :
   quantiles = apply(matBoot,2,function(col) funparam(col,probs)) 
+  row.names(quantiles) = probs
   #meme ligne : meme quantile
   
   resQuant = apply(quantiles,1,mean)
   
-  confidenceInter = apply(quantiles,1,function(line) quantile(line,probs = c(0.05,0.95)))
+  confidenceInter = apply(quantiles,1,function(line) quantile(line,probs = probsInter))
+  
+  plotFun =function(line,main)
+  {
+    hist(line,100,main=main,xlab = "")
+    abline(v = quantile(line,probs = probsInter),col = "blue",lty = 2)
+  }
+  nline = 1
+  for(p in probs)
+  {
+    plotFun(quantiles[nline,],main = names(probs)[nline])
+    nline = nline +1
+    
+  }
   
   res = list()
   res$resQuant = resQuant
@@ -77,7 +95,7 @@ naifBootstrap = function(data,NsBootstrap,probs)
   return(res)
 }
 
-smoothBoostrap = function(data,NsBootstrap,probs,sdSmooth = 0.1)
+smoothBootstrap = function(data,NsBootstrap,probs,sdSmooth = 0.1)
 {
   #smooth bootstrap
   #1b
@@ -89,11 +107,11 @@ smoothBoostrap = function(data,NsBootstrap,probs,sdSmooth = 0.1)
   return(res)
 }
 
-paramBootstrap = function(data,NsBootstrap,probs)
+paramBootstrap = function(data,NsBootstrap,probs,funParam = getParamHill)
 {
   #bootstrap parametrique en utilisant Hill pour determiner le parametre
   #parametrique = 1c
-  shape_hat = getParamHill(data)$hat_shape
+  shape_hat = funParam(data)$hat_shape
   paramSpecifiq = function(x) 
   {
     param(x,shape_hat)
@@ -103,24 +121,34 @@ paramBootstrap = function(data,NsBootstrap,probs)
 }
 
 
-bootstrapModifa = function(data,NsBootstrap,probs)
+bootstrapModifa = function(data,
+                           NsBootstrap,
+                           probs,
+                           funParam = getParamHill,
+                           sdSmooth = log(length(data))/length(data),
+                           kHill = sqrt(length(data)))
 {
   #2a
   funBootstrap = function(x,probs)
   {
-    estShape = getParamHill(x)$hat_shape
+    estShape = funParam(x,kHill)$hat_shape
     return(invFun(estShape,probs))
   }
   res = basicParam(data,NsBootstrap,probs,naif,funBootstrap)
   return(res)
 }
 
-bootstrapModifb = function(data,NsBootstrap,probs,sdSmooth = log(length(x))/length(x))
+bootstrapModifb = function(data,
+                           NsBootstrap,
+                           probs,
+                           funParam = getParamHill,
+                           sdSmooth = log(length(data))/length(data),
+                           kHill = sqrt(length(data)))
 {
   #2b
   funBootstrap = function(x,probs)
   {
-    estShape = getParamHill(x)$hat_shape
+    estShape = funParam(x,kHill)$hat_shape
     return(invFun(estShape,probs))
   }
   smoothSpecifiq = function(x) 
@@ -143,10 +171,10 @@ asymptotiqueEst = function(data,probs)
     nalpha = qnorm(c(.975),0,1)
     i1 = round(n*p-sqrt(n)*nalpha*sqrt(p*(1-p)),0 )
     i2 = round(n*p+sqrt(n)*nalpha*sqrt(p*(1-p)),0 )
-    res = cbind(res,c(i1,i2))
+    res = cbind(res,c(data[i1],data[i2]))
   }
   colnames(res) = probs
-  rownames(res) = c("5%","95%")
+  rownames(res) = names(probsInters)
   return(res)
 }
 
@@ -157,8 +185,8 @@ getTheoricBounds = function(data,probs,shape)
   res = c()
   for(p in probs)
   {
-    inter = matrix(c(quantile(data,p)-(p*(1-p))/dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)**2*1.96/sqrt(length(data))
-                     ,quantile(data,p)+(p*(1-p))/dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)**2*1.96/sqrt(length(data))
+    inter = matrix(c(quantile(data,p)-(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
+                     ,quantile(data,p)+(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
     ),nrow = 2)
     
     res = cbind(res,inter)
@@ -172,29 +200,47 @@ getTheoricBounds = function(data,probs,shape)
 
 #les donnees
 shape = 2
-x = rpareto(3000,shape=shape,scale = scale)+1
-
-probs = c(.5,.6,.7,.75,.90,.95,.99)
+set.seed(1)
+x = rpareto(30,shape=shape,scale = scale)+1
+max=1-(1/length(x))
+probs = c(.75,.90,max)
+names(probs) = c(".75",".90","max")
 qpareto(probs,shape = shape, scale = 1)+1
 naifBootstrap(x,10000,probs)
-smoothBootstrap(x,10000,probs,log(length(x))/length(x) )
+
+smoothBoostrap(x,10000,probs,log(length(x))/length(x) )
 smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
 paramBootstrap(x,10000,probs)
 
 bootstrapModifa(x,1000,probs)
 bootstrapModifb(x,1000,probs,log(length(x))/length(x))
 
+#les donnees
+x = rpareto(100,shape=shape,scale = scale)+1
+max=1-(1/length(x))
+probs = c(.75,.90,max)
+names(probs) = c(".75",".90","max")
+qpareto(probs,shape = shape, scale = 1)+1
+naifBootstrap(x,10000,probs)
+
+smoothBoostrap(x,10000,probs,log(length(x))/length(x) )
+smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
+paramBootstrap(x,10000,probs)
+
+bootstrapModifa(x,1000,probs,kHill=10)
+bootstrapModifa(x,1000,probs,kHill=20)
+bootstrapModifb(x,1000,probs,log(length(x))/length(x))
 
 #il y a probablement un probleme avec Hill ...
 p = .75
-asymptotiqueEst(x,p)
+asymptotiqueEst(x,probs)
 
 getTheoricBounds(x,probs,scale)
 
 
 x = rpareto(30,shape=2,scale =1)+1
 getParamEMV(x)
-getParamHill(x,sqrt(length(x)))
+getParamHill(x,5)
 
 # x = rpareto(10000000,shape=12,scale =1)+1
 # betaHat = 1/mean(log(x))
