@@ -247,7 +247,7 @@ getResults = function(listOfRes)
 #les donnees
 shape = 2
 set.seed(1)
-x = rpareto(100,shape=shape,scale = scale)+1
+x = rpareto(30,shape=shape,scale = scale)+1
 max=1-(1/length(x))
 probs = c(.75,.90,max)
 names(probs) = c("75\\%","90\\%","max")
@@ -258,7 +258,7 @@ resTh = getTheoricBounds(x,probs,scale)
 resAs = asymptotiqueEst(x,probs)
 resNaif = naifBootstrap(x,10000,probs)
 resSmooth = smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
-res = list(resTh,resAs,resSmooth,resSmooth)
+res = list(resTh,resAs,resNaif,resSmooth)
 names(res) = c("IC Oracle","IC Asympt.","IC Naif","IC Lisse")
 getResults(res)
 

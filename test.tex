@@ -1,0 +1,571 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+%\usepackage{palatino} %change la police d'écriture.
+\usepackage{lipsum} %pour avoir un texte, en latin, déja écrit, inutile dans 99,999999 % du temps.
+
+
+%modules mathématiques :
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs} %pour avoir un police d'écriture anglo-saxonne en mode mathématique.
+\usepackage{amsthm}
+\usepackage{amssymb} %symboles en plus.
+\usepackage{amsfonts}
+%Pour les figures
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+%autres packages :
+\usepackage{verbatim} %pour pouvoir changer de police dans le document.
+\usepackage{mathptmx} %pour utiliser une autre police
+\usepackage{dsfont}
+\usepackage{graphicx} %pour pouvoir faire des graphes.
+\usepackage{color} %pour mettre de la couleur
+\definecolor{bblack}{cmyk}{0,0,0,1} 
+\usepackage[colorlinks=true,linkcolor = black,urlcolor=black]{hyperref} %pour les liens hypertextes
+
+% \usepackage{mhchem}
+%si on veut mettre du code python
+\usepackage{listings}
+\definecolor{dkgreen}{rgb}{0,0.4,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{dkyellow}{cmyk}{0, 0, 0.2, 0}
+\lstset{
+  language=R,                % the language of the code
+  basicstyle= \footnotesize,      % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+                                  % will be numbered
+  showspaces=false,               % show spaces adding particular underscores
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{blue},      % keyword style
+  commentstyle=\color{dkgreen},   % comment style
+  stringstyle=\color{mauve},       % string literal style
+  backgroundcolor=\color{dkyellow},      % choose the background color. You must add \usepackage{color}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%% Pour reduire les marges ! %%%%%%%%%%%%%%%
+\setlength{\textwidth}{15cm} %Largeur du texte : n
+%\setlength{\marginparwidth}{0cm}
+\setlength{\oddsidemargin}{0.5cm} %m avec 2m+n = 16 pour que ca marche bien.
+%\setlength{\headheight}{0cm}
+%\setlength{\topmargin}{2cm} %hauteur marge d'en haut
+%\setlength{\headsep}{0cm} %hauteur de l'en tete
+%\setlength{\textheight}{21cm} %hauteur du texte
+%\setlength{\footskip}{0cm} %hauteur du pied de page
+%\setlength{\marginparsep}{0cm}
+%%%%%% Commandes pour structurer le texte %%%%%%%
+
+%%%%%%%%%%%%Pour des entetes stylees%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\clap#1{\hbox to 0pt{\hss #1\hss}}%
+\def\ligne#1{%
+\hbox to \hsize{%
+\vbox{\centering #1}}}%
+\def\haut#1#2#3{%
+\hbox to \hsize{%
+\rlap{\vtop{\raggedright #1}}%
+\hss
+\clap{\vtop{\centering #2}}%
+\hss
+\llap{\vtop{\raggedleft #3}}}}%
+\def\bas#1#2#3{%
+\hbox to \hsize{%
+\rlap{\vbox{\raggedright #1}}%
+\hss
+\clap{\vbox{\centering #2}}%
+\hss
+\llap{\vbox{\raggedleft #3}}}}%
+\def\maketitle{%
+\thispagestyle{empty}\vbox to \vsize{%
+\haut{}{\@blurb}{}
+\vfill
+\vspace{1cm}
+\begin{flushleft}
+\usefont{OT1}{ptm}{m}{n}
+\huge \@title
+\end{flushleft}
+\par
+\hrule height 4pt
+\par
+\begin{flushright}
+\usefont{OT1}{phv}{m}{n}
+\Large \@author
+\par
+\end{flushright}
+\vspace{1cm}
+%\begin{center}
+%\includegraphics[width=13cm]{img/Coinche.png}
+%\end{center}
+
+\vfill
+\vfill
+\bas{}{}{}
+}
+\cleardoublepage
+}
+\def\date#1{\def\@date{#1}}
+\def\author#1{\def\@author{#1}}
+\def\title#1{\def\@title{#1}}
+\def\location#1{\def\@location{#1}}
+\def\blurb#1{\def\@blurb{#1}}
+
+
+\date{30 avril 2015}
+\title{}
+\location{}\blurb{}
+\makeatother
+\title{Projet Informatique : Jeu de Coinche}
+\author{Benjamin DONNOT}
+\location{}
+\blurb{}
+
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\roman{subsection}}
+\renewcommand*{\(}{\left(}
+\renewcommand*{\)}{\right)}
+%%%%%%%%%Pour l'en-tete et le pied de page%%%%%%%%%%%%%%%%%%
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{lastpage}
+\renewcommand\headrulewidth{1pt}
+\renewcommand\footrulewidth{1pt}
+\fancyfoot[C]{DONNOT Benjamin\\ \textbf{Page \thepage/\pageref{LastPage}}}
+\fancyfoot[R]{PLUNTZ Matthieu}
+\fancyfoot[L]{CHAMPAGNE Clara }
+
+\title{Bootstrap et Rééchantillonnage}
+\author{CHAMPAGNE Clara \\ DONNOT Benjamin \\PLUNTZ Matthieu}
+\date{April 2015}
+%paramBootstrap
+
+
+\begin{document}
+
+\maketitle
+
+%%1 -> quantile empirique
+%%2 -> Quantile paramétrique (inverse la fonction de répartition)
+
+%%a : bootstrap naïf
+%%b : bootstrap lissé
+%%c :"bootstrap paramétrique" -> en passant par bêta chapeau
+
+
+\section*{Introduction}
+
+
+La loi de Pareto a pour fonction de répartition :
+
+\[ F(x)=1-\(\frac{c}{x}\)^{\beta}\text{ pour $x>c$, $c$ connu}\]
+
+La distribution ne possède de moments que pour les ordres inférieurs à $\beta$. Elle appartient au domaine d'attraction de Fréchet (distributions à queues lourdes).
+Il s'agit également d'une distribution fortement asymétrique. Si $\beta > 3$, on a \\
+\[
+k_3(\beta)=\frac{2(1+\beta)}{\beta-3}\sqrt{\frac{\beta-2}{\beta}}
+\]
+
+Dans ce travail, on se propose d'étudier les méthodes d'estimation des quantiles de la loi de Pareto. Les caractéristique de cette loi, ainsi que celles des quantiles rendent cette estimation complexe. Il s'agit donc d'étudier dans quelle mesure le bootstrap constitue une solution à ces problèmes, et quel est le type de bootstrap le mieux adapté. \\
+
+On étudiera successivement deux estimateurs des quantiles : l'estimateur non paramétrique du quantile empirique puis deux estimateurs paramétriques, l'estimateur de Hill et l'estimateur du maximum de vraisemblance, reposant sur la forme paramétrique de la loi de Pareto.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.7\linewidth]{img/ParetoBeta}  
+    \caption{Forme de la densite de la loi de Pareto pour différents paramètres de forme.}
+    \label{gif:Pareto}
+\end{figure}
+
+\clearpage
+\section{Approche non paramétrique : l'estimateur du quantile empirique}
+
+\subsection{Théorie et propriétés asymptotiques}
+Dans cette section, on étudie l'estimateur du quantile empirique d'ordre $q$, soit  $\hat{Q_n}(q)=\hat{F_n}^{-1}(q)$, où $\hat{F_n}$ est la fonction de répartition empirique.\\
+La fonction d'influence du quantile d'ordre $q$ vaut :
+\[ T^{(1)}[x,P] = \frac{q-\mathbf{1}_{x \leq T[P]} }{ f(F^{-1}(q)) } \]
+
+Par le théorème de Von Mises, cet estimateur est convergent et asymptotiquement normal selon (oracle 1)
+\[
+\sqrt{n}[\hat{F_n}^{-1}(q)-F^{-1}(q)]\sim \emph{N} \left( 0,\frac{q(1-q)}{[f(F^{-1}(q))]^2} \right)
+\]
+
+On peut ainsi construire un intervalle de confiance asymptotique autour de la valeur de $\hat{Q_n}(q)$, soit $[\hat{Q_n}(q) \pm \frac{a_{\alpha}\sqrt{q(1-q)}}{f(\hat{Q_n}(q))\sqrt{n}}]$, où $a_{\alpha}$ est le quantile d'ordre $1-\alpha/2$ de la loi $\emph{N}(0,1)$. \\
+
+Sans connaître la densité $f$, la variance asymptotique est inconnue. Un intervalle peut être calculé empiriquement pour l'échantillon $(X_1, ..., X_n)$. Si on considère l'échantillon ordonné $(X_{(1)}, ..., X_{(n)})$, l'intervalle $[X_{nq-\sqrt{n}a_\alpha\sqrt{q(1-q)}},X_{nq+\sqrt{n}a_\alpha\sqrt{q(1-q)}}]$, constitue un intervalle de confiance de niveau asymptotique $\alpha$.Il nécessite toutefois que le nombre d'observation $n$ soit suffisamment grand pour être correctement défini (la démonstration est fournie en annexe).\\
+
+La vitesse de convergence est donc de l'ordre de $O(\sqrt{n})$.
+Toutefois, plus l'ordre du quantile est élevé, plus la variance asymptotique est grande : le numérateur est plus élevé et le dénominateur plus faible (car on se situe dans la queue de distribution, dans laquelle la densité $f$ est plus faible). Par ailleurs, le coefficient de \textit{skewness} de cette loi très asymétrique (lorsqu'il existe !) perturbe fortement les conclusions de l'approche par l'asymptotique.\\
+
+
+Le calcul des quantiles d'une telle loi peut être utilisé comme un indicateur de risque. En particulier, on peut vouloir tester si le quantile de la loi est supérieur à une valeur fixée $R$, dans le cadre d'un test de niveau $\alpha$.\\
+\begin{center}
+$H_0 : Q(q) \leq R$\\
+$H_1 : Q(q) > R$\\
+\end{center}
+Le test de Wald unilatéral correspond a pour région critique :  \\
+
+\[\frac{n(\hat{Q_n}(q)-R)^2}{\dfrac{q(1-q)}{[f(F^{-1}(q))]^2}} \geq \chi^2_{1-\alpha}\]
+
+Ce test de niveau $\alpha$ est consistant mais on rencontre toujours le problème de la variance asymptotique, qui nécessite de connaître la densité de la loi pour être calculée.
+
+\subsection{Bootstrap}
+L'approche par l'asymptotique présente de nombreux problèmes.
+D'une part, la variance asymptotique est inconnue. D'autre part, les approximations peuvent être fallacieuses, surtout pour la loi de Pareto, asymétrique et à queue lourde, et les quantiles d'ordre élevé.\\
+
+Il s'agit désormais d'étudier différentes techniques de bootstrap dans ce contexte, afin de déterminer l'approche la plus adéquate pour pallier ces problèmes. On suppose disponible un échantillon de $n$ observations $(X_1, ..., X_n)$.
+
+\subsubsection{Bootstrap naïf : 1a}
+On considère tout d'abord l'approche classique par bootstrap : on réalise $B$ tirages avec remise parmi $(X_1, ..., X_n)$ d'un échantillon de $n$ observations $(X^*_1, ..., X^*_n)$.\\
+
+Comme la statistique du quantile est Fréchet différentiable, le théorème de Von Mises s'extrapole au cas du bootstrap, et on obtient :\\
+\begin{equation*}
+\sqrt{n}\left[\hat{F_n^*}^{-1}(q)-\hat{F_n^{-1}}(q)\right]\sim \emph{N}\(0~,~\frac{q(1-q)}{\left[f(F^{-1}(q))\right]^2}\)
+\end{equation*}\\
+
+Le bootstrap est donc convergent. En revanche, il n'est pas valide au second ordre. \\
+D'une part, la condition de Cramer n'est pas vérifiée car la fonction de répartition empirique est par définition à support discret. On n'a donc pas $\overline{lim}_{t\rightarrow+\infty}|\mathbb{E}_{P_n}e^{itX}|<1$.\\
+De plus, on ne peut pas calculer la contrepartie empirique de la fonction d'influence, son dénominateur étant impossible à connaître dans le cas discret.\\
+
+L'approche par bootstrap naïf est donc convergente, mais elle est pire que l'asymptotique car elle converge seulement à une vitesse en $O(n^{1/4})$.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-75-30.pdf}
+        \caption{q = 0.75}
+        \label{fig:naifB75}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-90-30.pdf}
+        \caption{q = 0.90}
+        \label{naifB90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-Max-30.pdf}
+        \caption{q = 1-1/n}
+        \label{fig:naifBMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap "naïf" pour n = 30. En bleu, l'intervalle de confiance à 95\%.}
+    \label{fig:naifB}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-75-100.pdf}
+        \caption{q = 0.75}
+        \label{fig:naifcB75}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-90-100.pdf}
+        \caption{q = 0.90}
+        \label{naifcB90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapNaif-Max-100.pdf}
+        \caption{q = 1-1/n}
+        \label{fig:naifcBMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap "naïf" pour n = 100. En bleu, l'intervalle de confiance à 95\%.}
+    \label{fig:naifB100}
+\end{figure}
+
+On constate graphiquement que l'estimation par bootstrap dans cette situation est bien mauvaise. Le tirage n'étant réalisé que parmi les valeurs de l'échantillon (qu'il y en ait 30 ou 100), la distribution bootstrap est concentrée sur un petit nombre de valeurs discrètes. Les estimations sont d'autant moins bonnes que l'on s'intéresse à un quantile élevé. Dans le cas du quantile maximal (1-1/n), on assiste à un échec du bootstrap qui, même au premier ordre, n'est pas convergent.
+
+\subsubsection{Bootstrap lissé : 1b}
+Afin de pallier ce défaut, on a recours au bootstrap lissé. On utilise pour cela un noyau $K_{h_n}$. On simule un $B$ échantillons $(\epsilon^{i}_1, ..., \epsilon^{i}_n)$ ($i=1...B$) selon $K_{h_n}$. Ensuite, l'échantillon boostrap $(X^*_1, ..., X^*_n)$ numéro $i$ est tiré avec remise dans $(X_1+\epsilon^{i}_1, ...,X_n+ \epsilon^{i}_n)$. Chaque échantillon bootstrap est donc tiré avec remise dans l'ensemble des observations perturbées.\\
+
+Par exemple, dans le cas du noyau gaussien, on a $(N_1, ...,N_n) \sim \emph{N}(0,1)$, $(\tilde{X^*_1},...,\tilde{X^*_n})$ tirés indépendamment dans $\hat{F_n}$, et $X_i^* = \tilde{X^*_i}h_nN_i$, ($i=1...n$). On répète $B$ fois cette opération.\\
+
+choix du noyau --> par exemple noyau gaussien
+Dans les simulation, on
+choix de $h_n$ : il faut $nh_n \rightarrow +\infty$ et $h_n \rightarrow 0$ et $h_n$ dépend de la régularité du modèle.\\
+
+\begin{equation*}
+Pr\left[ \sqrt{n}\frac{T(P^*_n)-T(P_n)}{S_n} \leq x\right]-Pr\left[\sqrt{n}\frac{T(P_n)-T(P)}{S_n} \leq x \right]=O\(n^{-3/4}\)
+\end{equation*}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-75-30.pdf}
+        \caption{q = 0.75}
+        \label{fig:smooth3B75}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-90-30.pdf}
+        \caption{q = 0.90}
+        \label{fig:smooth390}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-Max-30.pdf}
+        \caption{q = 1-1/n}
+        \label{fig:smooth3BMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap "lissé" pour n = 30. En bleu, l'intervalle de confiance à 95\%.}
+    \label{fig:smoothB30}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-75-100.pdf}
+        \caption{q = 0.75}
+        \label{fig:smoothB75}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-90-100.pdf}
+        \caption{q = 0.90}
+        \label{fig:smooth90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapSmooth-Max-100.pdf}
+        \caption{q = 1-1/n}
+        \label{fig:smoothBMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap "lissé" pour n = 100. En bleu, l'intervalle de confiance à 95\%.}
+    \label{fig:smoothB}
+\end{figure}
+
+Le lissage améliore très sensiblement les estimations bootstrap, notamment pour les quantiles peu élevés. En revanche, l'estimation de la valeur maximale est toujours très douteuse, car en présence de valeurs très dispersées dans l'échantillon (car on se situe dans la queue de distribution), la fenêtre de lissage ne permet pas de bien estimer la densité et de couvrir l'espace d'intérêt.
+
+%mettre le tableau où on compare les vraies valeurs, les IC oracles (Matthieu), les IC asympto (Clara), les IC naïfs, les IC lissés
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|cccc}
+&IC Oracle&IC Asympt.&IC Naif&IC Lisse\\
+\hline
+75\%&\begin{tabular}{c}$1.94$\\{\small $[ 1.66 , 2.22 ]$ } \end{tabular}&\begin{tabular}{c}$4.82$\\{\small $[ 1 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$1.97$\\{\small $[ 1.62 , 2.38 ]$ } \end{tabular}&\begin{tabular}{c}$1.99$\\{\small $[ 1.61 , 2.43 ]$ } \end{tabular}\\
+90\%&\begin{tabular}{c}$2.42$\\{\small $[ 1.59 , 3.26 ]$ } \end{tabular}&\begin{tabular}{c}$2.27$\\{\small $[ 2.82 , 1.71 ]$ } \end{tabular}&\begin{tabular}{c}$2.68$\\{\small $[ 1.94 , 4.02 ]$ } \end{tabular}&\begin{tabular}{c}$2.71$\\{\small $[ 1.96 , 4.22 ]$ } \end{tabular}\\
+max&\begin{tabular}{c}$4.18$\\{\small $[ 1.48 , 6.88 ]$ } \end{tabular}&\begin{tabular}{c}$NA$\\{\small $[ 8.64 , NA ]$ } \end{tabular}&\begin{tabular}{c}$4.69$\\{\small $[ 2.2 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$4.68$\\{\small $[ 2.24 , 8.77 ]$ } \end{tabular}
+\end{tabular}
+\caption{Resultats blablabla n = 30}
+\label{tab:resNP30}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|cccc}
+&IC Oracle&IC Asympt.&IC Naif&IC Lisse\\
+\hline
+75\%&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.51$\\{\small $[ 1.45 , 1.58 ]$ } \end{tabular}&\begin{tabular}{c}$1.8$\\{\small $[ 1.61 , 2.04 ]$ } \end{tabular}&\begin{tabular}{c}$1.81$\\{\small $[ 1.62 , 2.09 ]$ } \end{tabular}\\
+90\%&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$1.44$\\{\small $[ 1.75 , 1.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.04 , 3.45 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.07 , 3.38 ]$ } \end{tabular}\\
+max&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$NA$\\{\small $[ 1.48 , NA ]$ } \end{tabular}&\begin{tabular}{c}$6.05$\\{\small $[ 3.45 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$6.09$\\{\small $[ 3.46 , 8.71 ]$ } \end{tabular}
+\end{tabular}
+\caption{Resultats blablabla n = 100}
+\label{tab:resNP100}
+\end{table}
+ %Décrire le tableau et les résultats
+ %faire un laius sur les tests (test facile, on regarde si on a 95% des valeurs en dessous de R.
+
+ %Faire un laius sur le maximum : comme quoi on n'est pas convergent.
+\clearpage
+\section{Approche paramétrique : maximum de vraisemblance et estimateur de Hill}
+
+\subsection{Estimation par maximum de vraisemblance (2)}
+
+\subsubsection{Expression de l'estimateur}
+
+Dans cette sous-partie on utilise l'hypothèse que les données suivent une loi de Pareto de paramètre $\beta = \beta_0$ inconnu, et $c$ connu qu'on prendra égal à 1 dans les simulations. On commence par déterminer l'estimateur du maximum de vraisemblance  $\widehat{\beta}^{MV}$ de $\beta$. La vraisemblance s'écrit :
+\[ L(\beta|X_1) = \beta \left( \frac{X_1}{c} \right)^{-\beta - 1} \]
+
+\noindent On en déduit la log-vraisemblance :
+\[ l(\beta|X_1) = \log(\beta) - (\beta + 1) \log \frac{X_{1}}{c} \]
+
+\noindent donc pour n observations indépendantes on obtient :
+\[ l\(\beta|X^{(n)}\) = n \log(\beta) - (\beta + 1) \sum_{i=1}^{n}\log \frac{X_1}{c} \]
+
+\noindent et en dérivant :
+\[ \frac{\partial}{\partial \beta} l\(\beta|X^{(n)}\) = \frac{n}{\beta} - \sum_{i=1}^{n}\log \frac{X_1}{c} \]
+
+\noindent d'ou :
+\[\frac{1}{\widehat{\beta}_{MV}} = \frac{1}{n} \sum_{i=1}^{n}\log \frac{X_1}{c} \]
+
+On prend maintenant comme estimateur du quantile $Q(q)$ d'ordre $q$, le quantile théorique d'une loi de Pareto de paramètre $\widehat{\beta}_{MV}$ qui est donné par :
+\begin{align*}
+\widehat{Q(q)}_{MV} &= (1-q)^{-1/\widehat{\beta}^{MV}} \\
+&=(1-q)^{- \frac{1}{n} \sum_{i=1}^{n}\log \frac{X_{1}}{c} }
+\end{align*}
+
+
+\subsubsection{Comportement asymptotique}
+
+Remarquons d'abord que par propriété de la loi de Pareto, la variable aléatoire $ \log \frac{X_1}{c} $ qui intervient dans l'estimateur suit une loi exponentielle de paramètre $\beta_0$. En effet :
+\begin{align*}
+\forall\ t \geq 0, \ P(\log \frac{X_1}{c} \leq t) &= F(c \ e^t) \\
+&= 1 - e^{-\beta_0 t}
+\end{align*}
+
+On a donc :
+\begin{align*}
+\text{E} \left( \log \frac{X_{1}}{c} \right) &= \frac{1}{\beta_0} \\
+\text{Var} \left( \log \frac{X_{1}}{c} \right) &= \frac{1}{\beta_0^2}
+\end{align*}
+
+Par conséquent, d'après le théorème de la limite centrale, l'estimateur du paramètre a la loi asymptotique suivante : 
+\[ \sqrt{n} \left( \frac{1}{\widehat{\beta}_{MV}} - \frac{1}{\beta_0} \right) \sim \emph{N} \left( 0, \frac{1}{\beta_0^2} \right) \]
+
+Par delta-méthode, on en déduit la variance asymptotique de l'estimateur du quantile :
+\[ \frac{\partial \ \widehat{Q(q)}_{MV}} {\partial (\frac{1}{\widehat{\beta}_{MV}}) } = -\log(1-q)\ (1-q)^{-1/\widehat{\beta}^{MV}} \]
+donc, asymptotiquement (oracle 2) :
+\[ \sqrt{n} \left[ \widehat{Q(q)}_{MV} - Q(q) \right] \sim \emph{N} \left( 0, \frac{\log^2(1-q)\ (1-q)^{-2/\beta_0}}{\beta_0^2}  \right) \]
+
+\subsection{Bootstrap}
+
+\subsubsection{Bootstrap 2a}
+
+On peut appliquer le bootstrap naïf à l'estimateur par maximum de vraisemblance décrit ci-dessus.
+
+% EMV : mettre les tableaux où on compare les vraies valeurs, les IC oracles 2, les IC comme oracle 2 avec le beta chapeau, les IC bootstrap.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAEMV-75-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAEMV75} %BAEMV : bootstrap 2a EMV
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAEMV-90-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAEMV90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAEMV-Max-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAEMVMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution 2a par maximum de vraisemblance pour n = 30}
+    \label{fig:BAEMV}
+\end{figure}
+
+\subsubsection{Asymptotique}
+On explique comment calculer les IC comme oracle avec le beta chapeau.(IC paramétriques)
+
+\subsubsection{Bootstrap 1c}
+%Expliquer \\
+% EMV : mettre les tableaux où on compare les vraies valeurs, les IC oracles 1 (idem partie 1), les IC comme oracle 1 avec le beta chapeau global, les IC bootstrap. Eventuellement reprendre les autres IC des tableaux de la partie 1 pour comparer. 
+
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamEMV-75-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPEMV75} %BPEMV : bootstrap parametrique EMV
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamEMV-90-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPEMV90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamEMV-Max-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPEMVMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap paramétrique par maximum de vraisemblance pour n = 100}
+    \label{fig:BPEMV}
+\end{figure}
+
+
+\subsection{Estimateur de Hill : plus robuste à la spécification}
+\[  \]
+L'estimateur de Hill consiste à ajuster une loi de Pareto tronquée sur les k plus grandes valeurs de l'échantillon, où k tend vers l'infini mais k<<n. Le $\beta$ obtenu permet de décrire le comportement de queue de la distribution $->$ à utiliser pour le maximum peut-être. On s'appuie sur l'hypothèse que la queue se comporte comme celle d'une Pareto (hypothèse assez générale) mais on n'a pas besoin d'hypothèse globale sur la loi.
+% http://www.ressources-actuarielles.net/EXT/ISFA/fp-isfa.nsf/0/72EE1310B7EBC2A2C1256FD2002E9C76/$FILE/Seance3-01.pdf?OpenElement
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-75-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAH75} %BAH : bootstrap 2a hill
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-90-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAH90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-Max-30.pdf}
+        \caption{Blablabl}
+        \label{fig:BAHMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution 2a par la méthode de Hill pour n = 30}
+    \label{fig:BAH}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamHill-75-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPH75} %BPH : bootstrap parametrique hill
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamHill-90-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPH90}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/BootstrapParamHill-Max-100.pdf}
+        \caption{Blablabl}
+        \label{fig:BPHMax}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap paramétrique par la méthode de Hill pour n = 100}
+    \label{fig:BPH}
+\end{figure}
+
+%Hill : mettre les mêmes tableau que pour EMV
+
+
+%Blabla pour expliquer ce qui se passe.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2a : m tirages avec remise dans l'échantillon des observations, puis calcul de m beta chapeau, ce qui donne m quantiles en inversant la FdR
+
+%2c : un calcul de beta0 chapeau avec les donnees, puis simulations de m échantillons de taille n qui suivent cette loi [ pareto(c,beta0 chapeau) ], calcul de m beta chapeau, qui donnent m quantiles en inversant la FdR [avantage : on n'a plus une pareto troncquee comme c'était le cas en 2a] -> inconvenient : on n'a jamais rien vu de tel, et c'est pas mentionné en cours (à vérifier mais je ne crois pas)
+
+
+\section{Conclusion}
+
+
+
+\section{Annexe}
+\subsection{Calcul des intervalles de confiance non paramétriques pour les quantiles}
+Ces calculs sont inspirés du cours :
+\url{http://cermics.enpc.fr/~alfonsi/mrf-quantile.pdf}\\
+
+
+\section{Code R}
+Le code utilisé est disponible sur \url{https://github.com/BDonnot/Bootstrap}
+
+\end{document}
+
+
+% Plan de la présentation
+% Introduction (Clara)
+% I. Non paramétrique :expliquer les IC asymptotiques, expliquer les techniques bootstrap (Clara)
+% décrire les résultats (graphes + tableaux) (Benjamin)
+% II. Paramétrique : estimer le beta. Deux estimateurs (EMV + hill (robust)) (Matthieu)
+% graphes et tableaux (Benjamin)
+% Conclusion (Matthieu)
+
