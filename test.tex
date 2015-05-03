@@ -2,8 +2,6 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage[utf8x]{inputenc}
-%\usepackage{palatino} %change la police d'écriture.
-\usepackage{lipsum} %pour avoir un texte, en latin, déja écrit, inutile dans 99,999999 % du temps.
 
 
 %modules mathématiques :
@@ -18,7 +16,7 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
-
+\usepackage{geometry}
 %autres packages :
 \usepackage{verbatim} %pour pouvoir changer de police dans le document.
 \usepackage{mathptmx} %pour utiliser une autre police
@@ -91,7 +89,7 @@
 \llap{\vbox{\raggedleft #3}}}}%
 \def\maketitle{%
 \thispagestyle{empty}\vbox to \vsize{%
-\haut{}{\@blurb}{}
+\haut{}{\blurb{}}{}
 \vfill
 \vspace{1cm}
 \begin{flushleft}
@@ -106,7 +104,7 @@
 \Large \@author
 \par
 \end{flushright}
-\vspace{1cm}
+%\vspace{1cm}
 %\begin{center}
 %\includegraphics[width=13cm]{img/Coinche.png}
 %\end{center}
@@ -123,15 +121,8 @@
 \def\location#1{\def\@location{#1}}
 \def\blurb#1{\def\@blurb{#1}}
 
-
-\date{30 avril 2015}
-\title{}
-\location{}\blurb{}
 \makeatother
-\title{Projet Informatique : Jeu de Coinche}
-\author{Benjamin DONNOT}
-\location{}
-\blurb{}
+
 
 \renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\arabic{subsection}}
@@ -147,17 +138,19 @@
 \fancyfoot[C]{DONNOT Benjamin\\ \textbf{Page \thepage/\pageref{LastPage}}}
 \fancyfoot[R]{PLUNTZ Matthieu}
 \fancyfoot[L]{CHAMPAGNE Clara }
+\fancyhead[L]{}
 
 \title{Bootstrap et Rééchantillonnage}
 \author{CHAMPAGNE Clara \\ DONNOT Benjamin \\PLUNTZ Matthieu}
 \date{April 2015}
 %paramBootstrap
 
-
 \begin{document}
 
 \maketitle
 
+\tableofcontents
+\clearpage
 %%1 -> quantile empirique
 %%2 -> Quantile paramétrique (inverse la fonction de répartition)
 
@@ -167,7 +160,7 @@
 
 
 \section*{Introduction}
-
+\addcontentsline{toc}{section}{Introduction} 
 
 La loi de Pareto a pour fonction de répartition :
 
@@ -179,7 +172,9 @@ Il s'agit également d'une distribution fortement asymétrique. Si $\beta > 3$, 
 k_3(\beta)=\frac{2(1+\beta)}{\beta-3}\sqrt{\frac{\beta-2}{\beta}}
 \]
 
-Dans ce travail, on se propose d'étudier les méthodes d'estimation des quantiles de la loi de Pareto. Les caractéristique de cette loi, ainsi que celles des quantiles rendent cette estimation complexe. Il s'agit donc d'étudier dans quelle mesure le bootstrap constitue une solution à ces problèmes, et quel est le type de bootstrap le mieux adapté. \\
+Dans ce travail, on se propose d'étudier les méthodes d'estimation des quantiles de la loi de Pareto. Les caractéristiques de cette loi, ainsi que celles des quantiles rendent cette estimation complexe. Il s'agit donc d'étudier dans quelle mesure le bootstrap constitue une solution à ces problèmes, et quel est le type de bootstrap le mieux adapté. \\
+
+Cette loi est très utilisée dans les domaines actuariels. En effet, elle permet de modéliser des phénomènes ayant des impacts importants (phénomènes liés aux "queues lourdes"). Et, une des principale mesure de risque repose sur la "Value at Risk", qui n'est ni plus ni moins qu'un fractile.
 
 On étudiera successivement deux estimateurs des quantiles : l'estimateur non paramétrique du quantile empirique puis deux estimateurs paramétriques, l'estimateur de Hill et l'estimateur du maximum de vraisemblance, reposant sur la forme paramétrique de la loi de Pareto.
 
@@ -187,10 +182,13 @@ On étudiera successivement deux estimateurs des quantiles : l'estimateur non pa
 \begin{figure}[H]
     \centering
     \includegraphics[width = 0.5\linewidth]{img/ParetoBetaV2}  
-    \caption{Forme de la densité de la loi de Pareto pour $c=1$ et différents paramètres de forme.}
+    \caption{Densité de la loi de Pareto pour $c=1$ et différents paramètres de forme.}
     \label{gif:Pareto}
 \end{figure}
 
+Comme nous pouvons le voir sur le graphique précédent, la forme de la fonction de densité de la loi de Pareto varie beaucoup selon le paramètre. Dans la suite, et sauf mention du contraire, nous avons décidé de prendre $c = 1$ et $\beta = 2$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \clearpage
 \section{Approche non paramétrique : l'estimateur du quantile empirique}
 
@@ -206,9 +204,9 @@ Par le théorème de Von Mises, cet estimateur est convergent et asymptotiquemen
 
 On peut ainsi construire un intervalle de confiance asymptotique autour de la valeur de $\hat{Q_n}(q)$, soit $[\hat{Q_n}(q) \pm \frac{a_{\alpha}\sqrt{q(1-q)}}{f(\hat{Q_n}(q))\sqrt{n}}]$, où $a_{\alpha}$ est le quantile d'ordre $1-\alpha/2$ de la loi $\emph{N}(0,1)$. \\
 
-Sans connaître la densité $f$, la variance asymptotique est inconnue. Un intervalle peut être calculé empiriquement pour l'échantillon $(X_1, ..., X_n)$. Si on considère l'échantillon ordonné $(X_{(1)}, ..., X_{(n)})$, l'intervalle $[X_{nq-\sqrt{n}a_\alpha\sqrt{q(1-q)}},X_{nq+\sqrt{n}a_\alpha\sqrt{q(1-q)}}]$, constitue un intervalle de confiance de niveau asymptotique $\alpha$.Il nécessite toutefois que le nombre d'observation $n$ soit suffisamment grand pour être correctement défini (la démonstration est fournie en annexe).\\
+Sans connaître la densité $f$, la variance asymptotique est inconnue. Un intervalle peut être calculé empiriquement pour l'échantillon $(X_1, ..., X_n)$. Si on considère l'échantillon ordonné $(X_{(1)}, ..., X_{(n)})$, l'intervalle $[X_{nq-\sqrt{n}a_\alpha\sqrt{q(1-q)}},X_{nq+\sqrt{n}a_\alpha\sqrt{q(1-q)}}]$, constitue un intervalle de confiance de niveau asymptotique $\alpha$. Il nécessite toutefois que le nombre d'observation $n$ soit suffisamment grand pour être correctement défini (la démonstration est fournie en annexe).\\
 
-La vitesse de convergence est donc de l'ordre de $O(\sqrt{n})$.
+La vitesse de convergence, pour un quantile q fixé, est donc de l'ordre de $O(\frac{1}{\sqrt{n}})$.
 Toutefois, plus l'ordre du quantile est élevé, plus la variance asymptotique est grande : le numérateur est plus élevé et le dénominateur plus faible (car on se situe dans la queue de distribution, dans laquelle la densité $f$ est plus faible). Par ailleurs, le coefficient de \textit{skewness} de cette loi très asymétrique (lorsqu'il existe !) perturbe fortement les conclusions de l'approche par l'asymptotique.\\
 
 
@@ -217,7 +215,7 @@ Le calcul des quantiles d'une telle loi peut être utilisé comme un indicateur 
 $H_0 : Q(q) \leq R$\\
 $H_1 : Q(q) > R$\\
 \end{center}
-Le test de Wald unilatéral correspond a pour région critique :  \\
+Le test de Wald unilatéral correspondant a pour région critique :  \\
 
 \[\frac{n(\hat{Q_n}(q)-R)^2}{\dfrac{q(1-q)}{[f(F^{-1}(q))]^2}} \geq \chi^2_{1-\alpha}\]
 
@@ -225,23 +223,23 @@ Ce test de niveau $\alpha$ est consistant mais on rencontre toujours le problèm
 
 \subsection{Bootstrap}
 L'approche par l'asymptotique présente de nombreux problèmes.
-D'une part, la variance asymptotique est inconnue. D'autre part, les approximations peuvent être fallacieuses, surtout pour la loi de Pareto, asymétrique et à queue lourde, et les quantiles d'ordre élevé.\\
+D'une part, la variance asymptotique est inconnue. D'autre part, les approximations peuvent être fallacieuses, surtout pour la loi de Pareto, asymétrique et à queue lourde, et en particulier pour les quantiles d'ordre élevé.\\
 
 Il s'agit désormais d'étudier différentes techniques de bootstrap dans ce contexte, afin de déterminer l'approche la plus adéquate pour pallier ces problèmes. On suppose disponible un échantillon de $n$ observations $(X_1, ..., X_n)$.
 
-\subsubsection{Bootstrap naïf : 1a}
+\subsubsection{Bootstrap naïf}
 On considère tout d'abord l'approche classique par bootstrap : on réalise $B$ tirages avec remise parmi $(X_1, ..., X_n)$ d'un échantillon de $n$ observations $(X^*_1, ..., X^*_n)$.\\
 
 Comme la statistique du quantile est Fréchet différentiable, le théorème de Von Mises s'extrapole au cas du bootstrap, et on obtient :
 \[
-\sqrt{n}\left[ \hat{F_n^*}^{-1}(q)-\hat{F_n^{-1}}(q) \right] \sim \emph{N} \( 0 ~ , ~ \frac{q(1-q)}{\left[f(F^{-1}(q))\right]^2}\)
+\sqrt{n}\left[ \hat{F_n^*}^{-1}(q)-\hat{F_n^{-1}}(q) \right] \sim \emph{N} \left( 0 ~ , ~ \frac{q(1-q)}{\left[f(F^{-1}(q))\right]^2}\right)
 \]
 
 Le bootstrap est donc convergent. En revanche, il n'est pas valide au second ordre. \\
 D'une part, la condition de Cramer n'est pas vérifiée car la fonction de répartition empirique est par définition à support discret. On n'a donc pas $\overline{lim}_{t\rightarrow+\infty}|\mathbb{E}_{P_n}e^{itX}|<1$.\\
 De plus, la fonction d'influence de la loi empirique n'existe pas, son dénominateur étant impossible à connaître dans le cas discret.\\
 
-L'approche par bootstrap naïf est donc convergente, mais elle est pire que l'asymptotique car elle converge seulement à une vitesse en $O(n^{1/4})$.
+L'approche par bootstrap naïf est donc convergente, mais elle est pire que l'asymptotique car elle converge seulement à une vitesse en $O(n^{-1/4})$.
 
 \begin{figure}[H]
     \centering
@@ -285,22 +283,23 @@ L'approche par bootstrap naïf est donc convergente, mais elle est pire que l'as
     \label{fig:naifB100}
 \end{figure}
 
-On constate graphiquement que l'estimation par bootstrap dans cette situation est bien mauvaise. Le tirage n'étant réalisé que parmi les valeurs de l'échantillon (qu'il y en ait 30 ou 100), la distribution bootstrap est concentrée sur un petit nombre de valeurs discrètes. Les estimations sont d'autant moins bonnes que l'on s'intéresse à un quantile élevé. Dans le cas du quantile maximal (1-1/n), on assiste à un échec du bootstrap qui, même au premier ordre, n'est pas convergent.
+On constate graphiquement que l'estimation par bootstrap dans cette situation est bien mauvaise. Le tirage n'étant réalisé que parmi les valeurs de l'échantillon (qu'il y en ait 30 ou 100), la distribution bootstrap est concentrée sur un petit nombre de valeurs discrètes. Les estimations sont d'autant moins bonnes que l'on s'intéresse à un quantile élevé. Dans le cas du quantile maximal (1-1/n), on assiste à un échec du bootstrap qui, même au premier ordre, n'est pas convergent. En effet, l'estimation de ce quantile s'apparente à l'estimation du maximum, dont la statistique empirique ne possède pas de propriétés d'équicontinuité quelle que soit la métrique retenue. Les estimations classiques par bootstrap ne sont donc pas valides dans cette situation.
 
-\subsubsection{Bootstrap lissé : 1b}
+
+
+\subsubsection{Bootstrap lissé}
 Afin de pallier ce défaut, on a recours au bootstrap lissé. On utilise pour cela un noyau $K_{h_n}$. On simule un $B$ échantillons $(\epsilon^{i}_1, ..., \epsilon^{i}_n)$ ($i=1...B$) selon $K_{h_n}$. Ensuite, l'échantillon boostrap $(X^*_1, ..., X^*_n)$ numéro $i$ est tiré avec remise dans $(X_1+\epsilon^{i}_1, ...,X_n+ \epsilon^{i}_n)$. Chaque échantillon bootstrap est donc tiré avec remise dans l'ensemble des observations perturbées.\\
 
 Par exemple, dans le cas du noyau gaussien, on a $(N_1, ...,N_n) \sim \emph{N}(0,1)$, $(\tilde{X^*_1},...,\tilde{X^*_n})$ tirés indépendamment dans $\hat{F_n}$, et $X_i^* = \tilde{X^*_i}h_nN_i$, ($i=1...n$). On répète $B$ fois cette opération.\\
 
-Le lissage de la fonction de répartition empirique permet l'existence de la fonction d'influence de la loi empirique. Ainsi, le développement d'Edgeworth peut se calculer et sous certaines hypothèses de régularité, on obtient la validité du bootstrap au second ordre. Dans le cas d'un noyau gaussien, on a ainsi une vitesse de convergence en $O(n^{-3/4})$.
+Le lissage de la fonction de répartition empirique permet l'existence de la fonction d'influence de la loi empirique. Ainsi, le développement d'Edgeworth peut se calculer et sous certaines hypothèses de régularité, on obtient la validité du bootstrap au second ordre. Dans le cas d'un noyau gaussien, on a ainsi une vitesse de convergence en $O(n^{-3/4})$ si la variance des perturbations ($h_n$) est bien choisies.
 % ecrire le développement d'edgeworth
 
 Il est nécessaire de bien choisir la fenêtre $h_n$ : en particulier, il faut respecter les conditions 
-$nh_n \rightarrow +\infty$ et $h_n \rightarrow 0$.\\
-
-\begin{equation*}
+$nh_n \rightarrow +\infty$ et $h_n \rightarrow 0$.
+\[
 Pr\left[ \sqrt{n}\frac{T(P^*_n)-T(P_n)}{S_n} \leq x\right]-Pr\left[\sqrt{n}\frac{T(P_n)-T(P)}{S_n} \leq x \right]=O\(n^{-3/4}\)
-\end{equation*}
+\]
 
 
 \begin{figure}[H]
@@ -345,7 +344,7 @@ Pr\left[ \sqrt{n}\frac{T(P^*_n)-T(P_n)}{S_n} \leq x\right]-Pr\left[\sqrt{n}\frac
     \label{fig:smoothB}
 \end{figure}
 
-Le lissage améliore très sensiblement les estimations bootstrap, notamment pour les quantiles peu élevés. En revanche, l'estimation de la valeur maximale est toujours très douteuse, car en présence de valeurs très dispersées dans l'échantillon (car on se situe dans la queue de distribution), la fenêtre de lissage ne permet pas de bien estimer la densité et de couvrir l'espace d'intérêt.
+Le lissage améliore très sensiblement les estimations bootstrap, notamment pour les quantiles peu élevés. En revanche, l'estimation de la valeur maximale est toujours très douteuse, car en présence de valeurs très dispersées dans l'échantillon (car on se situe dans la queue de distribution), la fenêtre de lissage ne permet pas de bien estimer la densité et de couvrir l'espace d'intérêt. Le lissage ne permet donc pas de pallier l'échec du bootstrap dans le cas de l'estimation du quantile maximal. En effet, la loi de Pareto appartenant au domaine d'attraction de Fréchet, ses queues de distributions sont lourdes et le lissage gaussien sous-estime largement la probabilité d'apparition des observations élévées.
 
 
 \begin{table}[H]
@@ -353,11 +352,11 @@ Le lissage améliore très sensiblement les estimations bootstrap, notamment pou
 \begin{tabular}{c|c|cccc}
 &valeur théorique&IC Oracle&IC Asympt.&IC Naif&IC Lisse\\
 \hline
-75\%&2&\begin{tabular}{c}$1.94$\\{\small $[ 1.66 , 2.22 ]$ } \end{tabular}&\begin{tabular}{c}$2$\\{\small $[ 1.62 , 2.38 ]$ } \end{tabular}&\begin{tabular}{c}$1.97$\\{\small $[ 1.62 , 2.38 ]$ } \end{tabular}&\begin{tabular}{c}$1.99$\\{\small $[ 1.61 , 2.43 ]$ } \end{tabular}\\
-90\%&$3.16$&\begin{tabular}{c}$2.42$\\{\small $[ 1.59 , 3.26 ]$ } \end{tabular}&\begin{tabular}{c}$5.41$\\{\small $[ 2.17 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$2.68$\\{\small $[ 1.94 , 4.02 ]$ } \end{tabular}&\begin{tabular}{c}$2.71$\\{\small $[ 1.96 , 4.22 ]$ } \end{tabular}\\
-max&$5.48$&\begin{tabular}{c}$4.18$\\{\small $[ 1.48 , 6.88 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 2.38 , NA ]$ } \end{tabular}&\begin{tabular}{c}$4.69$\\{\small $[ 2.2 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$4.68$\\{\small $[ 2.24 , 8.77 ]$ } \end{tabular}
+75\%&2&\begin{tabular}{c}$1.94$\\{\small $[ 1.29 , 2.58 ]$ } \end{tabular}&\begin{tabular}{c}$1.94$\\{\small $[ 1.62 , 2.38 ]$ } \end{tabular}&\begin{tabular}{c}$1.97$\\{\small $[ 1.62 , 2.38 ]$ } \end{tabular}&\begin{tabular}{c}$1.99$\\{\small $[ 1.61 , 2.43 ]$ } \end{tabular}\\
+90\%&$3.16$&\begin{tabular}{c}$2.42$\\{\small $[ -0.37 , 5.22 ]$ } \end{tabular}&\begin{tabular}{c}$2.42$\\{\small $[ 2.17 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$2.68$\\{\small $[ 1.94 , 4.02 ]$ } \end{tabular}&\begin{tabular}{c}$2.71$\\{\small $[ 1.96 , 4.22 ]$ } \end{tabular}\\
+max&$5.48$&\begin{tabular}{c}$4.18$\\{\small $[ -10.87 , 19.23 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 2.38 , NA ]$ } \end{tabular}&\begin{tabular}{c}$4.69$\\{\small $[ 2.2 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$4.68$\\{\small $[ 2.24 , 8.77 ]$ } \end{tabular}
 \end{tabular}
-\caption{Quantiles estimés et intervalles de confiance à 95\% par les différents méthodes. Les intervalles de confiance "oracle" correspondent aux intervalles de confiance asymptotiques calculés en utilisant la connaissance de la densité $f$ (soit une loi de Pareto de paramètre connu). Les intervalles de confiance asymptotiques correspondent à la méthode no paramétrique décrite précédemment.  n = 30}
+\caption{Quantiles estimés et intervalles de confiance à 95\% par les différents méthodes. Les intervalles de confiance "oracle" correspondent aux intervalles de confiance asymptotiques calculés en utilisant la connaissance de la densité $f$ (soit une loi de Pareto de paramètre connu). Les intervalles de confiance asymptotiques correspondent à la méthode non paramétrique décrite précédemment.  n = 30}
 \label{tab:resNP30}
 \end{table}
 
@@ -367,17 +366,20 @@ max&$5.48$&\begin{tabular}{c}$4.18$\\{\small $[ 1.48 , 6.88 ]$ } \end{tabular}&\
 \begin{tabular}{c|c|cccc}
 &valeur théorique&IC Oracle&IC Asympt.&IC Naif&IC Lisse\\
 \hline
-75\%&$2$&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.83$\\{\small $[ 1.62 , 2.04 ]$ } \end{tabular}&\begin{tabular}{c}$1.8$\\{\small $[ 1.61 , 2.04 ]$ } \end{tabular}&\begin{tabular}{c}$1.81$\\{\small $[ 1.62 , 2.09 ]$ } \end{tabular}\\
-90\%&$3.16$&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.97$\\{\small $[ 2.17 , 3.76 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.04 , 3.45 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.07 , 3.38 ]$ } \end{tabular}\\
-max&$5.48$&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 4.02 , NA ]$ } \end{tabular}&\begin{tabular}{c}$6.05$\\{\small $[ 3.45 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$6.09$\\{\small $[ 3.46 , 8.71 ]$ } \end{tabular}
+75\%&$2$&\begin{tabular}{c}$1.76$\\{\small  $[ 1.41 , 2.11 ]$  } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.62 , 2.04 ]$ } \end{tabular}&\begin{tabular}{c}$1.8$\\{\small $[ 1.61 , 2.04 ]$ } \end{tabular}&\begin{tabular}{c}$1.81$\\{\small $[ 1.62 , 2.09 ]$ } \end{tabular}\\
+90\%&$3.16$&\begin{tabular}{c}$2.66$\\{\small $[ 1.13 , 4.19 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.17 , 3.76 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.04 , 3.45 ]$ } \end{tabular}&\begin{tabular}{c}$2.62$\\{\small $[ 2.07 , 3.38 ]$ } \end{tabular}\\
+max&$10$&\begin{tabular}{c}$6.57$\\{\small $[ -44.2 , 57.33 ]$  } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 4.02 , NA ]$ } \end{tabular}&\begin{tabular}{c}$6.05$\\{\small $[ 3.45 , 8.64 ]$ } \end{tabular}&\begin{tabular}{c}$6.09$\\{\small $[ 3.46 , 8.71 ]$ } \end{tabular}
 \end{tabular}
-\caption{Quantiles estimés et intervalles de confiance à 95\% par les différents méthodes. Les intervalles de confiance "oracle" correspondent aux intervalles de confiance asymptotiques calculés en utilisant la connaissance de la densité $f$ (soit une loi de Pareto de paramètre connu). Les intervalles de confiance asymptotiques correspondent à la méthode no paramétrique décrite précédemment. n = 100}
+\caption{Quantiles estimés et intervalles de confiance à 95\% par les différents méthodes. Les intervalles de confiance "oracle" correspondent aux intervalles de confiance asymptotiques calculés en utilisant la connaissance de la densité $f$ (soit une loi de Pareto de paramètre connu). Les intervalles de confiance asymptotiques correspondent à la méthode non paramétrique décrite précédemment. n = 100}
 \label{tab:resNP100}
 \end{table}
 
+On constate que les intervalles de confiance calculés par bootstrap sont bien plus proches des intervalles oracles que les intervalles asymptotiques non paramétriques, pour les quantiles à 75\% et 90\%. Dans le cadre de ces simulations, on ne décèle pas de différence notable entre l'approche par bootstrap lissé et l'approche par bootstrap naïf sur les intervalles de confiance. L'observation des histogrammes des distributions bootstrap sous-jacentes permet toutefois de souligner l'importance du lissage.\\
+L'intervalle de confiance asymptotique oracle explose pour les grands quantiles ce qui s'explique par le fait que le comportement asymptotique ne prévaut que lorsque $n \rightarrow \infty$ à $q$ fixé. Cela justifie une approche par bootstrap pour estimer des quantiles proches de 1 quand $n$ n'est pas très grand.\\
+En ce qui concerne l'estimation de la valeur maximale, surtout dans le cas du quantile à 99\% (lorsque n=100), on assiste à l'échec des trois méthodes d'estimation. La valeur du quantile est largement sous-estimée, et les intervalles de confiance sont soit infinis (cas asymptotique), soit ne contiennent pas la bonne valeur du paramètre. L'estimation non paramétrique du maximum, par des techniques asymptotiques ou bootstrap est un échec même au premier ordre (non convergence vers la bonne valeur du paramètre).\\
 
-%Décrire le tableau et les résultats
- 
+\subsubsection{Tests}
+
 Dans l'approche par bootstrap, la construction d'un test est directe : il s'agit de voir si la cible du test est contenue dans l'intervalle de confiance autour de la valeur estimée. Par exemple, dans le test décrit précédemment :
 \begin{center}
 $H_0 : Q(q) \leq R$\\
@@ -385,11 +387,48 @@ $H_1 : Q(q) > R$\\
 \end{center}
 Il faut ainsi voir si la borne supérieure de l'intervalle de confiance à 90\% dépasse la valeur R (dans le cadre d'un test unilatéral de niveau 5\%). Dans ce cas, $H_0$ est rejetée.
 
- %Faire un laius sur le maximum : comme quoi on n'est pas convergent.
+
+\subsection{Retour sur le choix du paramètre $\beta$}
+Dans cette sous-partie, nous nous focaliserons sur le paramètre $\beta$ de la loi de Pareto (aussi appelé paramètre de forme), et tenterons de voir son influence sur la distribution du bootstrap lissé (avec un lissage normal de variance $h_n \equiv \sqrt{n}$) du quantile 90\% de ces lois.
+
+Pour $\beta = 2, 3$ puis 4, nous allons évaluer le quantile 90\% d'une loi de Pareto de paramètre $\beta$. Nous ne nous intéresserons pas aux valeurs quantitatives du quantile (qui dépend bien entendu de la loi et qui sera donc différent selon les lois considérées), mais allons regarder l'impact du paramètre de forme de la loi d'origine sur la distribution du bootstrap lissé de ce quantile.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/Smooth-90-2.pdf}
+        \caption{$\beta = 2$}
+        \label{fig:beta2}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/Smooth-90-3.pdf}
+        \caption{$\beta = 3$}
+        \label{fig:beta3}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width = \linewidth]{img/Smooth-90-4.pdf}
+        \caption{$\beta = 4$}
+        \label{fig:beta4}
+    \end{subfigure}%
+    \caption{Histogramme de la distribution du Bootstrap "lissé" pour n = 100, pour $10~000$ échantillons du bootstrap du quantile $90\%$ d'une loi de Pareto pour différent paramètre de forme.}
+    \label{fig:beta}
+\end{figure}
+
+La figure \ref{fig:beta} montre les résultats obtenus pour différents paramètres de forme. Dans tous les cas, les histogrammes représentent $10~000$ échantillons bootstrap différents.\\
+Comme nous pouvons le voir, dans le cas $\beta = 2$ (sous-figure \ref{fig:beta2}) , la distribution obtenue ne semble pas régulière, on distingue clairement dans le résultat les différentes normales centrées autour de l'échantillon de départ. Il aurait sans doute fallu lisser plus.\\
+Lorsque $\beta = 3$ (\ref{fig:beta3}), ce phénomène disparaît, la loi semble régulière mais n'est absolument pas symétrique. Il serait donc dangereux de considérer l'intervalle de confiance asymptotique, qui revient peu ou prou à faire un hypothèse de normalité.\\
+Enfin lorsque $\beta = 4$ (\ref{fig:beta4}), non seulement la distribution bootstrap semble régulière, mais en plus celle-ci est "quasiment" symétrique. L'hypothèse de normalité n'est dans ce cas pas à exclure, et l'asymptotique donnerait sans doute de bons résultats. \\
+
+Ici, comme nous avons pu le voir, il apparaît que plus la queue est lourde (ie plus $\beta$ est petit), plus l'intérêt du Bootstrap par rapport à l'asymptotique se justifie. En effet, plus la queue sera lourdre, moins la distribution bootstrap pourra être considérée comme proche d'une normale. \\
+
+Ces résultats illustrent également le fait que la fenêtre de lissage doit dépendre de la forme de la distribution : plus $\beta$ est petit, plus le lissage correspondant doit être élevé.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \clearpage
 \section{Approche paramétrique : maximum de vraisemblance et estimateur de Hill}
 
-\subsection{Estimation par maximum de vraisemblance (2)}
+\subsection{Estimation par maximum de vraisemblance}
 
 \subsubsection{Expression de l'estimateur}
 
@@ -435,10 +474,12 @@ Par delta-méthode, on en déduit la variance asymptotique de l'estimateur du qu
 \[ \frac{\partial \ \widehat{Q(q)}_{MV}} {\partial (\frac{1}{\widehat{\beta}_{MV}}) } = -\log(1-q)\ (1-q)^{-1/\widehat{\beta}^{MV}} \]
 donc, asymptotiquement (oracle 2) :
 \[ \label{var2} \sqrt{n} \left[ \widehat{Q(q)}_{MV} - Q(q) \right] \sim \emph{N} \left( 0, \frac{\log^2(1-q)\ (1-q)^{-2/\beta_0}}{\beta_0^2}  \right) \]
+Cette variance asymptotique est inférieure à celle de l'estimateur non paramétrique \eqref{var2} pour toutes valeurs de $\beta_0$ et $q$. Dans la suite on affichera comme intervalles de confiance "oracle" ceux qui correspondent au cas non paramétrique et qui constituent une sorte de borne supérieure de la variance asymptotique des estimateurs (on ne peut que faire mieux si l'on dispose de plus d'hypothèses paramétriques). 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Bootstrap}
 
-\subsubsection{Bootstrap naïf de l'estimateur du quantile par maximum de vraisemblance (2a)}
+\subsubsection{Bootstrap naïf de l'estimateur du quantile par maximum de vraisemblance}
 
 De même que pour l'estimateur non-paramétrique du quantile (voir partie 1), on peut appliquer la méthode standard  de bootstrap, ou bootstrap naïf à l'estimateur par maximum de vraisemblance $\widehat{Q(q)}_{MV}$ décrit ci-dessus. On réalise $B$ tirages avec remise parmi $(X_1, ..., X_n)$ d'un échantillon de $n$ observations : $\forall b = 1,..,B, \ X^{*b} = (X^*_{1^{(b)}}, ..., X^*_{n^{(b)}})$, et pour chacun de ces échantillons on calcule :
 \[ \widehat{Q(q)}_b = \widehat{Q(q)}_{MV}(X^{*b}) \]
@@ -496,7 +537,26 @@ En plus des intervalles de confiance non-asymptotiques estimés par bootstrap, o
     \label{fig:BAEMVb}
 \end{figure}
 
-\subsubsection{Bootstrap paramétrique pour le quantile empirique (1c)}
+
+Les distributions bootstrap sont beaucoup plus proches d'une distribution normale que celles obtenues par l'approche non paramétrique. La prise en compte de la connaissance sur la loi améliore les estimations.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|c|ccc}
+&Quantile théorique&IC Oracle&IC Asympt. &IC bootstrap naïf\\
+\hline
+75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.41 , 2.11 ]$  } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small  $[ 1.69 , 1.83 ]$} \end{tabular}&\begin{tabular}{c}$1.84$\\{\small $[ 1.66 , 2.05 ]$ } \end{tabular}\\
+90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 1.13 , 4.19 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.47 , 2.84 ]$ } \end{tabular}&\begin{tabular}{c}$2.76$\\{\small $[ 2.32 , 3.3 ]$ } \end{tabular}\\
+max&10&\begin{tabular}{c}$6.57$\\{\small $[ -44.2 , 57.33 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 4.88 , 8.25 ]$ } \end{tabular}&\begin{tabular}{c}$7.7$\\{\small $[ 5.39 , 10.92 ]$ } \end{tabular}
+\end{tabular}
+\caption{Quantile et intervalles de confiance construits à partir de l'estimateur du maximum de vraisemblance. Les intervalles de confiance bootstrap sont calculés par bootstrap naïf selon la méthode décrite. Les intervalles de confiance asymptotiques correspondent à l'intervalle de confiance oracle dans lequel on utilise le paramètre $\beta$ estimé par maximum de vraisemblance. n = 100}
+\label{tab:resA30}
+\end{table} 
+
+Dans cette situation, les estimations obtenues par bootstrap sont largement plus performantes que les estimations asymptotiques, pour les quantiles à 75\% et 90\% tout comme pour le quantile à $(n-1)/n$ ou quantile maximal. Les intervalles de confiance asymptotiques ne contiennent en aucun cas la vraie valeur alors que ceux du bootstrap la contiennent à chaque fois.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Bootstrap paramétrique pour le quantile empirique}
 Dans cette sous-partie on considère à nouveau l'estimateur non-paramétrique du quantile (ou quantile empirique) sur lequel portait la partie 1. On va présenter une nouvelle alternative au bootstrap naïf pour cet estimateur.
 L'hypothèse que les données suivent une loi de Pareto de paramètre $\beta$ inconnu permet de réaliser la procédure suivante, dite de \emph{bootstrap paramétrique} :
 \begin{enumerate}
@@ -505,38 +565,11 @@ L'hypothèse que les données suivent une loi de Pareto de paramètre $\beta$ in
 \[\forall b = 1,..,B, \ X^{*b} = (X^*_{1^b}, ..., X^*_{n^b}) \sim Pareto(\widehat{\beta}_{MV}(X)) \]
 \item On calcule le quantile empirique $\widehat{Q(q)}_b$ de chacun de ces échantillons. On obtient ainsi un échantillon de taille $b$ d'estimateurs du quantile empirique. 
 \end{enumerate}
-Le bootstrap paramétrique est une façon de lisser la loi $F_n$ selon laquelle les échantillons de bootstrap sont tirés, puisqu'il s'agit ici d'une loi de Pareto. Contrairement à la fonction de répartition empirique utilisée dans un bootstrap naïf, cette loi est absolument continue par rapport à la mesure de Lebesgue donc la fonction d'influence de l'opérateur quantile \eqref{influenceQ} y est bien définie, ce qui rend possible la validité du bootstrap au second ordre. \\ 
+Le bootstrap paramétrique est une façon de lisser la loi $F_n$ selon laquelle les échantillons de bootstrap sont tirés, puisqu'il s'agit ici d'une loi de Pareto. Contrairement à la fonction de répartition empirique utilisée dans un bootstrap naïf, cette loi est absolument continue par rapport à la mesure de Lebesgue donc la fonction d'influence de l'opérateur quantile \eqref{influenceQ} y est bien définie au premier et au second ordre. Ainsi, les termes du développement d'Edgeworth de la distribution empirique et de celui de la distribution bootstrap convergent vers une même valeur, ce qui rend possible la validité du bootstrap au second ordre \\ 
 
 En revanche cette méthode est peu robuste puisque pour qu'elle impose que $X$ suive véritablement une loi de Pareto. Dans le cas contraire $F_n$ ne tend pas vers $F$ et le bootstrap ne converge pas. \\ 
-Paralèllement au bootstrap, la variance asymptotique du quantile empirique, dont on avait une expression théorique \eqref{var1} lors de l'estimation non-paramétrique, peut désormais être estimée en remplaçant $\beta_0$ par $\widehat{\beta}_{MV}(X))$ dans cette formule, on estime ainsi de nouveaux intervalles de confiance asymptotique du quantile empirique.
-\begin{table}[H]
-\centering
-\begin{tabular}{c|c|ccccc}
-&Théorique&IC Oracle &IC Matthieu avec Beta hat EMV&IC Matthieu avec Beta hat Hill&IC EMV&IC Hill\\
-\hline
-75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.94$\\{\small $[ 1.88 , 2 ]$ } \end{tabular}&\begin{tabular}{c}$1.94$\\{\small $[ 1.87 , 2 ]$ } \end{tabular}&\begin{tabular}{c}$1.96$\\{\small $[ 1.5 , 2.68 ]$ } \end{tabular}&\begin{tabular}{c}$1.98$\\{\small $[ 1.51 , 2.74 ]$ } \end{tabular}\\
-90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.42$\\{\small $[ 2.31 , 2.54 ]$ } \end{tabular}&\begin{tabular}{c}$2.42$\\{\small $[ 2.3 , 2.54 ]$ } \end{tabular}&\begin{tabular}{c}$2.87$\\{\small $[ 1.89 , 4.66 ]$ } \end{tabular}&\begin{tabular}{c}$2.89$\\{\small $[ 1.88 , 4.81 ]$ } \end{tabular}\\
-max&5.48&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 3.96 , 4.39 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 3.96 , 4.39 ]$ } \end{tabular}&\begin{tabular}{c}$4.48$\\{\small $[ 2.31 , 9.56 ]$ } \end{tabular}&\begin{tabular}{c}$4.52$\\{\small $[ 2.31 , 9.95 ]$ } \end{tabular}
-\end{tabular}
-\caption{n = 30}
-\label{tab:resPram30}
-\end{table} 
+Paralèllement au bootstrap, la variance asymptotique du quantile empirique, dont on avait une expression théorique \eqref{var1} lors de l'estimation non-paramétrique, peut désormais être estimée en remplaçant $\beta_0$ par $\widehat{\beta}_{MV}(X))$ dans cette formule, on estime ainsi de nouveaux intervalles de confiance asymptotiques du quantile empirique.
 
-\begin{table}[H]
-\centering
-\begin{tabular}{c|c|ccccc}
-&Théorique&IC Oracle &IC Matthieu avec Beta hat EMV&IC Matthieu avec Beta hat Hill&IC EMV&IC Hill\\
-\hline
-75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.73 , 1.79 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.73 , 1.79 ]$ } \end{tabular}&\begin{tabular}{c}$1.83$\\{\small $[ 1.59 , 2.14 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.55 , 2.03 ]$ } \end{tabular}\\
-90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.6 , 2.72 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.61 , 2.71 ]$ } \end{tabular}&\begin{tabular}{c}$2.72$\\{\small $[ 2.14 , 3.54 ]$ } \end{tabular}&\begin{tabular}{c}$2.56$\\{\small $[ 2.04 , 3.28 ]$ } \end{tabular}\\
-max&10&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 6.4 , 6.74 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 6.43 , 6.71 ]$ } \end{tabular}&\begin{tabular}{c}$6.72$\\{\small $[ 3.59 , 14.25 ]$ } \end{tabular}&\begin{tabular}{c}$5.96$\\{\small $[ 3.32 , 11.97 ]$ } \end{tabular}
-\end{tabular}
-\caption{n = 100}
-\label{tab:resParam100}
-\end{table} 
-
-%%Ne serait-il pas plus pertinent de comparer Hill et EMV, plutot que de comparer EMV a la théorie et Hill a la théorie ?
-%%La on se tape 4 tableaux dans la partie de Matthieu, pour moi c'est illisible !
 
 \begin{figure}[H]
     \centering
@@ -580,70 +613,65 @@ max&10&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\beg
     \label{fig:BPEMVb}
 \end{figure}
 
+Dans cette situation également, les distributions bootstrap obtenues sont à nouveau plus proches d'une distribution normale que les estimations non paramétriques. Toutefois, les distributions sont fortement asymétriques à mesure que l'on s'intéresse à des quantiles plus élevés. La tendance est donc à la sous-estimation des quantiles élevés.
 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|c|ccc}
+&Quantile théorique&IC Oracle&IC Asympt.& IC Bootstrap paramétrique (MV)\\
+\hline
+75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.41 , 2.11 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.69 , 1.83 ]$ } \end{tabular}&\begin{tabular}{c}$1.83$\\{\small $[ 1.59 , 2.14 ]$ } \end{tabular}\\
+90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 1.13 , 4.19 ]$  } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.47 , 2.84 ]$ } \end{tabular}&\begin{tabular}{c}$2.72$\\{\small $[ 2.14 , 3.54 ]$ } \end{tabular}\\
+pseudo-max&10&\begin{tabular}{c}$6.57$\\{\small $[ -44.2 , 57.33 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 4.88 , 8.25 ]$ } \end{tabular}&\begin{tabular}{c}$6.72$\\{\small $[ 3.59 , 14.25 ]$ } \end{tabular}
+\end{tabular}
+\caption{Estimation du quantile empirique et intervalles de confiance, obtenus par bootstrap paramétrique fondé sur l'estimateur du maximum de vraisemblance. Les intervalles de confiance asymptotiques correspondent à l'intervalle de confiance oracle dans lequel on utilise le paramètre $\beta$ estimé par maximum de vraisemblance. n=100}
+\label{tab:resPramEMV}
+\end{table} 
+
+
+Dans cette situation également, les estimations par bootstrap sont nettement plus performantes que les approximations par l'asymptotique. On note toutefois une tendance à la sous-estimation des quantiles plus on s'intéresse à la queue de distribution (qui résulte de l'asymétrie des distributions bootstrap commentée précédemment). Ceci peut être problématique lorsque les estimations de quantiles sont utilisées pour quantifier des risques. Les intervalles de confiance sont toutefois plus larges et mieux centrés autour de la vraie valeur que dans la méthode précédente, ce qui est plus adéquat.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Estimateur de Hill : plus robuste à la spécification}
 
 L'estimateur de Hill consiste à ajuster une loi de Pareto tronquée sur les $k-1$ plus grandes valeurs de l'échantillon, où $k \leq n$. Plus précisément, en notant $X_{(1)},..,X_{(k)}$ les $k$ plus grandes valeurs de l'échantillon $X^{(n)}$, on suppose que :
 \[ X_{(1)},..,X_{(k-1)} \sim Pareto(\beta,c=X_{(k)}) \]
 
-Cette hypothèse est plus faible que celle qui affirme que $X$ suit une loi de Pareto de manière globale, utilisée jusqu'ici dans cette partie. Pour $n$ grand $k = o(n)$, on peut l'appliquer à une large classe de lois de probabilité (dites du domaine de Fréchet) dont la queue est similaire à celle d'une loi de Pareto [\cite{Planchet}]\\ 
+Cette hypothèse est plus faible que celle qui affirme que $X$ suit une loi de Pareto de manière globale, utilisée jusqu'ici dans cette partie. Pour $n$ grand $k = o(n)$, on peut l'appliquer à une large classe de lois de probabilité (dites du domaine de Fréchet) dont la queue est similaire à celle d'une loi de Pareto \cite{Planchet}\\ 
 
 L'estimateur de Hill est alors l'estimateur du maximum de vraisemblance de ce modèle :
 \[ \frac{1}{\widehat{\beta}_{k,H}(X)} = \frac{1}{\widehat{\beta}_{MV}(X_{(1)},..,X_{(k-1)})} = \frac{1}{n} \sum_{j=1}^{k-1}\log \frac{X_{(j)}}{X_{(k)}} \]
 
-Du paramètre estimé par la méthode de Hill, on peut déduire l'estimateur suivant des quantiles suffisament élevés, également appelé estimateur de Hill [\cite{Planchet}] :
-\[ \forall\ q > 1-\frac{k}{n},\ \widehat{Q(q)}_{k,H} = X_{(k)} + \left( \frac{n}{k}(1-q) \right)^{-\frac{1}{\widehat{\beta}_{k,H}}} \]
-Cet estimateur est convergent si $X$ suit une loi de Pareto dès lors que $k\rightarrow \infty$ et $n\rightarrow \infty$, mais aussi pour toute distribution du domaine de Fréchet si on a de plus $k = o(n)$. Pour satisfaire la condition $q > 1-\frac{k}{n}$, il est nécessaire que $q$ tende vers $1$ quand $n\rightarrow \infty$, par exemple $q = 1-\frac{1}{n}$ dont le quantile $Q(1-\frac{1}{n})$ est l'espérance asymptotique du maximum d'un échantillon de taille $n$. 
-
-\begin{table}[H]
-\centering
-\begin{tabular}{c|c|ccccc}
-&Quantile Théorique&IC Oracle&IC Matthieu avec Beta hat EMV&IC Matthieu avec Beta hat Hill&IC EMV&IC Hill\\
-75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.94$\\{\small $[ 1.88 , 2 ]$ } \end{tabular}&\begin{tabular}{c}$1.94$\\{\small $[ 1.87 , 2 ]$ } \end{tabular}&\begin{tabular}{c}$1.93$\\{\small $[ 1.56 , 2.46 ]$ } \end{tabular}&\begin{tabular}{c}$2.84$\\{\small $[ 2.76 , 2.96 ]$ } \end{tabular}\\
-90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.42$\\{\small $[ 2.31 , 2.54 ]$ } \end{tabular}&\begin{tabular}{c}$2.42$\\{\small $[ 2.3 , 2.54 ]$ } \end{tabular}&\begin{tabular}{c}$3$\\{\small $[ 2.09 , 4.46 ]$ } \end{tabular}&\begin{tabular}{c}$3.4$\\{\small $[ 2.91 , 4.21 ]$ } \end{tabular}\\
-max& 5.48 & \begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 3.96 , 4.39 ]$ } \end{tabular}&\begin{tabular}{c}$4.18$\\{\small $[ 3.96 , 4.39 ]$ } \end{tabular}&\begin{tabular}{c}$5.13$\\{\small $[ 2.97 , 9.1 ]$ } \end{tabular}&\begin{tabular}{c}$4.52$\\{\small $[ 3.12 , 7.49 ]$ } \end{tabular}
-\end{tabular}
-\caption{n = 30}
-\label{tab:resA30}
-\end{table} 
-
-\begin{table}[H]
-\centering
-\begin{tabular}{c|c|ccccc}
-&Quantile Théorique&IC Oracle &IC Matthieu avec Beta hat EMV&IC Matthieu avec Beta hat Hill&IC EMV&IC Hill\\
-\hline
-75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.61 , 1.91 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.73 , 1.79 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.73 , 1.79 ]$ } \end{tabular}&\begin{tabular}{c}$1.84$\\{\small $[ 1.66 , 2.05 ]$ } \end{tabular}&\begin{tabular}{c}$2.74$\\{\small $[ 2.7 , 2.79 ]$ } \end{tabular}\\
-90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 2.2 , 3.12 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.6 , 2.72 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.61 , 2.71 ]$ } \end{tabular}&\begin{tabular}{c}$2.76$\\{\small $[ 2.32 , 3.3 ]$ } \end{tabular}&\begin{tabular}{c}$3.23$\\{\small $[ 3 , 3.54 ]$ } \end{tabular}\\
-max&10&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 6.4 , 6.74 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 6.43 , 6.71 ]$ } \end{tabular}&\begin{tabular}{c}$7.7$\\{\small $[ 5.39 , 10.92 ]$ } \end{tabular}&\begin{tabular}{c}$5.72$\\{\small $[ 4.15 , 8.27 ]$ } \end{tabular}
-\end{tabular}
-\caption{n = 100}
-\label{tab:resA100}
-\end{table} 
-
-
+Du paramètre estimé par la méthode de Hill, on peut déduire l'estimateur suivant des quantiles suffisament élevés, également appelé estimateur de Hill \cite{Planchet}:
+\[ \forall\ q > 1-\frac{k}{n},\ \widehat{Q(q)}_{k,H} = X_{(k)} \left( \frac{n}{k}(1-q) \right)^{-\frac{1}{\widehat{\beta}_{k,H}}} \]
+Cet estimateur est convergent si $X$ suit une loi de Pareto dès lors que $k\rightarrow \infty$ et $n\rightarrow \infty$, mais aussi pour toute distribution du domaine de Fréchet si on a de plus $k = o(n)$. Pour satisfaire la condition $q > 1-\frac{k}{n}$, il est nécessaire que $q$ tende vers $1$ quand $n\rightarrow \infty$, par exemple $q = 1-\frac{1}{n}$ dont le quantile $Q(1-\frac{1}{n})$ est estimé par le maximum d'un échantillon de taille $n$. 
 % Ce serait bien de coder ct estimateur-là si on a le temps car l'estimateur Q = quantile théorique d'une Pareto(betaHill), ça ne sert à rien : moins bon que QEMV si on a globalement une Pareto et pas convergent si on n'a que la queue. De même pour le bootstrap (1 c Hill).
 % Je ne sais pas comment on pourrait faire un bootstrap (1 c Hill) utile. 
 
 % http://www.ressources-actuarielles.net/EXT/ISFA/fp-isfa.nsf/0/72EE1310B7EBC2A2C1256FD2002E9C76/$FILE/Seance3-01.pdf?OpenElement  page 30
 
+A partir de cet estimateur, on peut réécrire les deux techniques de bootstrap citées précédemment, soit le bootstrap naïf de l'estimation du paramètre de forme et le bootstrap paramétrique du quantile empirique. Les résultats sont présentés ci-dessous. Dans les simulations, on a retenu une valeur de $k=n/3$. 
+
 \begin{figure}[H]
     \centering
     \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width = \linewidth]{img/BootstrapAHill-75-30.pdf}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-75-100-V2.png}
         \caption{Quantile à 75\%}
         \label{fig:BAH75} %BAH : bootstrap 2a hill
     \end{subfigure}%
     \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width = \linewidth]{img/BootstrapAHill-90-30.pdf}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-90-100-V2.png}
         \caption{Quantile à 90\%}
         \label{fig:BAH90}
     \end{subfigure}%
     \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width = \linewidth]{img/BootstrapAHill-Max-30.pdf}
-        \caption{Quantile à 29/30}
+        \includegraphics[width = \linewidth]{img/BootstrapAHill-Max-100-V2.png}
+        \caption{Quantile à 99/100}
         \label{fig:BAHMax}
     \end{subfigure}%
-    \caption{Histogramme de la distribution 2a par la méthode de Hill pour n = 30}
+    \caption{Histogramme de la distribution du quantile estimé par la méthode de Hill pour n = 100, réalisé par bootstrap naïf}
     \label{fig:BAH}
 \end{figure}
 
@@ -668,29 +696,76 @@ max&10&\begin{tabular}{c}$6.57$\\{\small $[ 1.52 , 11.62 ]$ } \end{tabular}&\beg
     \label{fig:BPH}
 \end{figure}
 
+\begin{table}[H]
+\centering
+\begin{tabular}{c|c|ccccc}
+&Quantile théorique&IC Asympt. (Hill) &IC Hill\\
+\hline
+75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.41 , 2.11 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.69 , 1.82 ]$  } \end{tabular}&\begin{tabular}{c}$1.82$\\{\small $[ 1.75 , 1.89 ]$ } \end{tabular}\\
+90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 1.13 , 4.19 ]$ } \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.5 , 2.82 ]$ } \end{tabular}&\begin{tabular}{c}$2.61$\\{\small $[ 2.23 , 3.11 ]$ } \end{tabular}\\
+max&10&\begin{tabular}{c}$6.57$\\{\small $[ -44.2 , 57.33 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 5.17 , 7.97 ]$  } \end{tabular}&\begin{tabular}{c}$6.65$\\{\small $[ 4.1 , 10.79 ]$ } \end{tabular}
+\end{tabular}
+\caption{Quantile et intervalles de confiance construits à partir de l'estimateur de Hill. Les intervalles de confiance bootstrap sont calculés par bootstrap naïf selon la méthode décrite. Les intervalles de confiance asymptotiques correspondent à l'intervalle de confiance oracle dans lequel on utilise le paramètre $\beta$ estimé par Hill. n = 100}
+\label{tab:resA100}
+\end{table} 
 
 
+Dans cette situation, les intervalles de confiance de l'estimateur de Hill obtenus par bootstrap sont nettement meilleurs que les intervalles asymptotiques, toutefois ils ne contiennent la vraie valeur du paramètre que pour le quantile maximal. Le bootstrap est ici plus pertinent pour l'estimation de quantiles élevés. L'estimateur de Hill est donc un bon choix pour l'estimation de quantiles proches de $1$ d'une loi à queue lourde dont on ne connaît pas la forme globale, d'autant plus que le bootstrap permet alors de décrire correctement le comportement de l'estimateur.
 
+% J'ai enlevé le 1c hill (rangé derrière le end document) (m)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %2c : un calcul de beta0 chapeau avec les donnees, puis simulations de m échantillons de taille n qui suivent cette loi [ pareto(c,beta0 chapeau) ], calcul de m beta chapeau, qui donnent m quantiles en inversant la FdR [avantage : on n'a plus une pareto troncquee comme c'était le cas en 2a] -> inconvenient : on n'a jamais rien vu de tel, et c'est pas mentionné en cours (à vérifier mais je ne crois pas)
 
-
+\clearpage
 \section*{Conclusion}
-La méthode standard de bootstrap appliquée à l'estimateur du quantile empirique est d'une efficacité médiocre, qui a cependant pu être améliorée grâce à l'utilisation de méthodes de bootstrap lisse, paramétrique ou non-paramétrique.
+\addcontentsline{toc}{section}{Conclusion} 
 
+Afin d'estimer les quantiles d'une loi de Pareto, l'approche par l'asymptotique présente de nombreux défauts, liés à la forte asymétrie et aux queues de distribution de la loi. L'utilisation du bootstrap est donc nécessaire. Cette approche est d'autant plus nécessaire qu'on veut estimer des quantiles d'ordre élevé d'une loi de Pareto à queue lourde ($\beta$ faible).\\
+
+La méthode standard de bootstrap appliquée à l'estimateur du quantile empirique est d'une efficacité médiocre, qui a cependant pu être améliorée grâce à l'utilisation de méthodes de bootstrap lissé. Cette méthode est convergente dans la queue de distribution à l'exception du quantile extrême. Afin d'obtenir des estimations plus justes, il est très pertinent d'utiliser les connaissances sur la forme paramétrique de la loi. Ainsi, les quantiles sont plus proches de leurs valeurs théoriques, les intervalles de confiance sont plus fiables, même pour l'estimation de la valeur extrême. En pratique, si la véritable loi des observations est inconnue, mais qu'on sait que ses queues de distribution sont lourdes (l'assimilation à une loi de Pareto n'est pas certaine), il est intéressant d'utiliser une méthode semi-paramétrique fondée sur l'estimateur de Hill. De manière générale, des précautions sont toutefois à prendre dans l'estimation des quantiles les plus extrêmes, qui peuvent être sous-estimés.
+
+\clearpage
 \bibliographystyle{plain}
 \bibliography{biblio}
 
-\section*{Annexe}
-\subsection{Calcul des intervalles de confiance non paramétriques pour les quantiles}
-Ces calculs sont inspirés du cours :
+\section*{Annexe 1 : Calcul des intervalles de confiance non paramétriques pour les quantiles}
+\addcontentsline{toc}{section}{Annexe 1 : Calcul des intervalles de confiance non paramétriques pour les quantiles} 
+Ces calculs sont tirés du cours :
 \url{http://cermics.enpc.fr/~alfonsi/mrf-quantile.pdf}\\
 
+On pose $Z_n = \sqrt{n}.\frac{\frac{1}{n}S_n-q}{\sqrt{p.(1-p)}}=\sum_{i=1}^n\mathbf{1}_{X_i\leq x_q}$. Par le théorème de la limite centrale, la suite $(Z_n, n \geq 1)$ converge en loi vers la loi gaussienne centrée réduite. Pour $n$ suffisamment grand, on a $1 \leq i_n \leq j_n \leq n$ et 
 
-\section*{Code R}
+\begin{align*}
+P\(X_{(i_n,n)}\leq x_q \leq X_{(j_n,n)}\) = P\(i_n \leq S_n \leq j_n\)= P\(\sqrt{n}\frac{\frac{1}{n}i_n-q}{\sqrt{q(1-q)}}\leq Z_n \leq \frac{\frac{1}{n}j_n-q}{\sqrt{q(1-q)}}\)
+\end{align*}
+Par la définition de $i_n$ et $j_n$, on déduit que pour $n\geq n_0 \geq1$, on a 
+
+\begin{align*}
+P\(-a_{\alpha}\leq Z_n \leq a_{\alpha}-\frac{1}{\sqrt{n_0}\sqrt{q(1-q)}}\)\\
+&\leq P\(\sqrt{n}\frac{\frac{1}{n}i_n-p}{\sqrt{q(1-q)}}\leq Z_n \leq \frac{\frac{1}{n}j_n-q}{\sqrt{q(1-q)}}\) \\
+&\leq P\(-a_{\alpha}-\frac{1}{\sqrt{n_0}\sqrt{q(1-q)}}\leq Z_n \leq a_{\alpha}\)
+\end{align*}
+
+On en déduit donc, en faisant tendre $n$ puis $n_0$ vers l'infini, que
+
+\begin{align*}
+\lim_{n \rightarrow + \infty}P\(\sqrt{n}\frac{\frac{1}{n}i_n-q}{\sqrt{q(1-q)}}\leq Z_n \leq \frac{\frac{1}{n}j_n-q}{\sqrt{q(1-q)}}\)=P\(-a_{\alpha}\leq Z\leq a_{\alpha}\) = 1- \alpha
+\end{align*}
+
+On a donc obtenu 
+
+\begin{align*}
+\lim_{n \rightarrow + \infty}P\(X_{(i_n,n)}\leq x_q \leq X_{(j_n,n)}\)=1-\alpha
+\end{align*}
+
+L'intervalle aléatoire $[X_{(i_n,n)},X_{(j_n,n)}]$ est bien défini pour $n$ suffisamment grand et c'est un intervalle de confiance pour $x_q$ de niveau asymptotique $1-\alpha$.
+
+
+\section*{Annexe 2 : Code R}
+\addcontentsline{toc}{section}{Annexe 2 : Code R} 
 Le code utilisé est disponible sur \url{https://github.com/BDonnot/Bootstrap}
 
 \end{document}
@@ -704,3 +779,18 @@ Le code utilisé est disponible sur \url{https://github.com/BDonnot/Bootstrap}
 % graphes et tableaux (Benjamin)
 % Conclusion (Matthieu)
 
+%bootstrap 1c de Hill
+\begin{table}[H]
+\centering
+\begin{tabular}{c|c|ccc}
+&Quantile théorique&IC Oracle&IC Asympt. (Hill) &IC Bootstrap paramétrique (Hill)\\
+\hline
+75\%&2&\begin{tabular}{c}$1.76$\\{\small $[ 1.41 , 2.11 ]$  } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.73 , 1.79 ]$ } \end{tabular}&\begin{tabular}{c}$1.76$\\{\small $[ 1.55 , 2.03 ]$ } \end{tabular}\\
+90\%&3.16&\begin{tabular}{c}$2.66$\\{\small $[ 1.13 , 4.19 ]$} \end{tabular}&\begin{tabular}{c}$2.66$\\{\small $[ 2.5 , 2.82 ]$ } \end{tabular}&\begin{tabular}{c}$2.56$\\{\small $[ 2.04 , 3.28 ]$ } \end{tabular}\\
+max&10&\begin{tabular}{c}$6.57$\\{\small $[ -44.2 , 57.33 ]$ } \end{tabular}&\begin{tabular}{c}$6.57$\\{\small $[ 5.17 , 7.97 ]$  } \end{tabular}&\begin{tabular}{c}$5.96$\\{\small $[ 3.32 , 11.97 ]$ } \end{tabular}
+\end{tabular}
+\caption{Estimation du quantile empirique et intervalles de confiance, obtenus par bootstrap paramétrique fondé sur l'estimateur de Hill. Les intervalles de confiance asymptotique correspond à l'intervalle de confiance oracle dans lequel on utilise le paramètre $\beta$ estimé par la méthode de Hill. n=100}
+\label{tab:resParamHill}
+\end{table}
+
+Dans cette situation, ce sont les estimations par bootstrap paramétrique qui sont les meilleures (cf. tableau \ref{tab:resParamHill}). Les intervalles de confiance contiennent bien la vraie valeur du paramètre pour les trois quantiles considérés, contrairement à l'asymptotique ou à la première méthode employée (bootstrap naïf sur le paramètre de forme estimé par Hill). En présence d'une loi à queues lourdes, sans certitude qu'il s'agit d'une loi de Pareto, il peut donc être judicieux de réaliser un bootstrap paramétrique fondé sur l'estimateur de Hill pour étudier les quantiles extrêmes. Il est toutefois à noter que les intervalles de confiance obtenus ne sont plutôt asymétriques et que la vraie valeur du paramètre a de fortes chances d'en frôler la borne supérieure.
