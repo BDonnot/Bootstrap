@@ -71,7 +71,7 @@ hillQuantile = function(estShape,probs,data,kHill)
 {
   dataS = sort(data,decreasing = T)
   X_k = dataS[kHill]
-  return(X_k + (length(data)/kHill*(1-probs))**(-1/estShape))
+  return(X_k*(length(data)/kHill*(1-probs))**(-1/estShape))
 }
 
 ##more evoluate functions
@@ -190,8 +190,8 @@ getTheoricBounds = function(data,probs,shape)
   res = c()
   for(p in probs)
   {
-    inter = matrix(c(quantile(data,p)-(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
-                     ,quantile(data,p)+(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
+    inter = matrix(c(quantile(data,p)-sqrt(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
+                     ,quantile(data,p)+sqrt(p*(1-p))/(dpareto(qpareto(p,shape = shape, scale = scale),shape = shape, scale = scale)*1.96*sqrt(length(data)))
     ),nrow = 2)
     
     res = cbind(res,inter)
