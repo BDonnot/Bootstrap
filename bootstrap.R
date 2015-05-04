@@ -320,7 +320,13 @@ resParamEMV3 = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getP
 shape = 4
 x = rpareto(100,shape=shape,scale = scale)+1
 resSmooth4 = smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
-resParamEMV3 = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamEMV,kHill = NULL)
+resParamEMV4 = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamEMV,kHill = NULL)
+
+
+shape = 10
+x = rpareto(100,shape=shape,scale = scale)+1
+resSmooth5 = smoothBootstrap(x,10000,probs,1/sqrt(length(x)) )
+resParamEMV5 = paramBootstrap(data=x,NsBootstrap=10000,probs=probs,funParam=getParamEMV,kHill = NULL)
 
 res = list(resSmooth2,resSmooth3,resSmooth4)
 names(res) = c("beta 2","beta 3","beta 4")
