@@ -1,7 +1,7 @@
 # install.packages("actuar")
 library(actuar)
 library(e1071) 
-
+setwd("\\\\paradis\\eleves\\BDonnot\\Bootstrap")
 ##Plot of the pareto distribution
 xplot = seq(0.001,5,length = 1e5)
 plot(xplot+1,dpareto(xplot,scale = 1, shape = 1),
